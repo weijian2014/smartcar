@@ -3,5 +3,5 @@ build/
 build_dir/
 
 # File
-../.vscode/.cortex-debug.peripherals.state.json
-../.vscode/.cortex-debug.registers.state.json
+.vscode/.cortex-debug.peripherals.state.json
+.vscode/.cortex-debug.registers.state.json
