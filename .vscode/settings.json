@@ -1,0 +1,100 @@
+{
+   "window.zoomLevel": 0,
+   "window.title": "${dirty}${activeEditorLong}${separator}${rootName}${separator}${appName}", // 标题栏显示当前文件完整路径信息
+   "workbench.colorTheme": "Visual Studio Dark",
+   "workbench.startupEditor": "newUntitledFile",
+   "workbench.statusBar.visible": true,
+   "workbench.editor.enablePreview": false,
+   "workbench.activityBar.visible": true,
+   "workbench.editor.wrapTabs": true, // 多行Tabs
+   "workbench.colorCustomizations": {
+      "editor.lineHighlightBackground": "#4c898d3d",
+      "editor.lineHighlightBorder": "#ffffff30"
+   },
+   "remote.SSH.remotePlatform": {
+      "promox": "linux"
+   },
+   "editor.insertSpaces": true, // 制表符转成空格
+   "editor.tabSize": 3,
+   "editor.fontSize": 16,
+   "editor.detectIndentation": false,
+   "editor.renderControlCharacters": false,
+   "editor.minimap.enabled": false, // 禁用预览图
+   "editor.autoIndent": "full",
+   "editor.formatOnPaste": true, // 粘贴时进行格式化
+   "editor.formatOnSave": true, // 保存时进行格式化
+   "editor.formatOnType": true, // 输入时进行格式化
+   "editor.renderIndentGuides": true, // 控制编辑器是否显示缩进参考线
+   "files.encoding": "utf8",
+   "files.eol": "\n",
+   "files.insertFinalNewline": true,
+   "files.trimFinalNewlines": false,
+   "files.trimTrailingWhitespace": true, // 删除行尾空格
+   "files.autoSave": "onFocusChange",
+   "search.exclude": {
+      "**/node_modules": true,
+      "**/bower_components": true,
+      "**/*.code-search": true
+   },
+   "debug.toolBarLocation": "docked", // 固定调试栏
+   "terminal.integrated.copyOnSelection": true,
+   "terminal.integrated.profiles.windows": {
+      "bash": {
+         "path": "D:\\Program Files\\stm32\\Git\\bin\\bash.exe"
+      },
+      "powershell": {
+         "path": "D:\\Program Files\\PowerShell\\7\\pwsh.exe"
+      }
+   },
+   "terminal.integrated.defaultProfile.windows": "bash",
+   "extensions.autoUpdate": true, // 插件自动更新
+   // "cmake.configureOnOpen": false,
+   // "cmake.buildDirectory": "/tmp/build_dir",
+   // "cmake.configureArgs": [
+   //    "-DTESTTOOLSBASE=/home/git/testtools",
+   //    "-DFSTACKBASE=/home/git/f-stack",
+   //    "-DMSP_BIN_DIR=/tmp/bin_dir",
+   //    "-DDISABLE_UNITTESTING=NO"
+   // ],
+   "C_Cpp.updateChannel": "Insiders",
+   // "C_Cpp.intelliSenseEngine": "Disabled", // 关闭C/C++插件的代码补全功能
+   // "C_Cpp.autocomplete": "Disabled", // 关闭C/C++插件的代码补全功能
+   // "C_Cpp.errorSquiggles": "Disabled", // 关闭C/C++插件的编译错误提示功能
+   "C_Cpp.formatting": "clangFormat",
+   "C_Cpp.clang_format_style": "file",
+   "C_Cpp.clang_format_fallbackStyle": "LLVM",
+   // "clangd.path": "c:\\Users\\weijian\\AppData\\Roaming\\Code\\User\\globalStorage\\llvm-vs-code-extensions.vscode-clangd\\install\\12.0.0\\clangd_12.0.0\\bin\\clangd.exe",
+   // "clangd.arguments": [
+   //    "--compile-commands-dir=f:/stm32/led/build_dir/compile_commands.json",
+   //    "--background-index", // 在后台自动分析文件（基于complie_commands.json)
+   //    "-j=16", // 同时开启的任务数量
+   //    "--query-driver=/usr/bin/clang++", // 告诉clangd用那个clang进行编译，路径参考which clang++的路径
+   //    "--clang-tidy", // clang-tidy功能
+   //    "--all-scopes-completion", // 全局补全（会自动补充头文件）
+   //    // "--completion-style=detailed", // 更详细的补全内容
+   //    "--header-insertion=never", // 补充头文件的形式
+   //    "--pch-storage=memory", // pch优化的位置, memory更快，但内存使用增加
+   // ],
+   "git.ignoreLegacyWarning": true,
+   "git.enabled": true,
+   "diffEditor.ignoreTrimWhitespace": false,
+   "breadcrumbs.enabled": true,
+   "go.toolsManagement.autoUpdate": true,
+   "gitlens.hovers.currentLine.over": "line",
+   "gitlens.advanced.messages": {
+      "suppressGitVersionWarning": true,
+      "suppressGitMissingWarning": true
+   },
+   "explorer.confirmDragAndDrop": false,
+   "security.workspace.trust.untrustedFiles": "open",
+   "settingsSync.ignoredSettings": [],
+   "bashBeautify.tabSize": 3,
+   "cmake.configureOnOpen": false,
+   "gitlens.codeLens.enabled": false,
+   "explorer.confirmDelete": false,
+   "files.associations": {
+      "stm32f1xx_hal.h": "c",
+      "i2c.h": "c",
+      "main.h": "c"
+   }
+}

@@ -1,0 +1,53 @@
+{
+   // See https://go.microsoft.com/fwlink/?LinkId=733558
+   // for the documentation about the tasks.json format
+   "version": "2.0.0",
+   "tasks": [
+      {
+         "label": "Make",
+         "type": "shell",
+         "command": "make -j8",
+         "group": "build"
+      },
+      {
+         "label": "Make & Download",
+         "type": "shell",
+         "command": "openocd",
+         "args": [
+            "-f",
+            "D:/Program Files/stm32/OpenOCD-20210625-0.11.0/share/openocd/scripts/interface/stlink-v2.cfg",
+            "-f",
+            "D:/Program Files/stm32/OpenOCD-20210625-0.11.0/share/openocd/scripts/target/stm32f1x.cfg",
+            "-c",
+            "program build/led.elf verify reset exit"
+         ],
+         "group": "build",
+         "dependsOn": "Make",
+         "problemMatcher": []
+      },
+      {
+         "label": "Cmake",
+         "type": "shell",
+         "command": "cd build_dir && cmake -DCMAKE_BUILD_TYPE=Debug .. -G Ninja && ninja",
+         "group": "build",
+         "problemMatcher": []
+      },
+      {
+         "label": "Cmake & Download",
+         "type": "shell",
+         "command": "openocd",
+         "args": [
+            "-f",
+            "D:/Program Files/stm32/OpenOCD-20210625-0.11.0/share/openocd/scripts/interface/stlink-v2.cfg",
+            "-f",
+            "D:/Program Files/stm32/OpenOCD-20210625-0.11.0/share/openocd/scripts/target/stm32f1x.cfg",
+            "-c",
+            // 用.hex和.elf均可
+            "program build_dir/smart-car.elf verify reset exit"
+         ],
+         "group": "build",
+         "dependsOn": "Cmake",
+         "problemMatcher": []
+      }
+   ]
+}

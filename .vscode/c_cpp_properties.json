@@ -1,0 +1,23 @@
+{
+   "configurations": [
+      {
+         "name": "WIN32_STM32",
+         "includePath": [
+            "${workspaceFolder}/**"
+         ],
+         "defines": [
+            "_DEBUG",
+            "UNICODE",
+            "_UNICODE",
+            "-DUSE_HAL_DRIVER", // 这个宏必须加上
+            "-DSTM32F103xB" // 这个宏必须加上, 根据STM系列进行增加
+         ],
+         "compilerPath": "D:/Program Files/stm32/MinGW/bin/gcc.exe",
+         "cStandard": "gnu17",
+         "cppStandard": "gnu++14",
+         "compileCommands": "F:/stm32/smartcar/build_dir/compile_commands.json",
+         "intelliSenseMode": "clang-x64"
+      }
+   ],
+   "version": 4
+}
