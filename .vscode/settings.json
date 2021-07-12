@@ -57,9 +57,9 @@
    //    "-DDISABLE_UNITTESTING=NO"
    // ],
    "C_Cpp.updateChannel": "Insiders",
-   // "C_Cpp.intelliSenseEngine": "Disabled", // 关闭C/C++插件的代码补全功能
-   // "C_Cpp.autocomplete": "Disabled", // 关闭C/C++插件的代码补全功能
-   // "C_Cpp.errorSquiggles": "Disabled", // 关闭C/C++插件的编译错误提示功能
+   "C_Cpp.intelliSenseEngine": "Default", // C/C++插件的代码补全功能
+   "C_Cpp.autocomplete": "Default", // C/C++插件的代码补全功能
+   "C_Cpp.errorSquiggles": "Enabled", // C/C++插件的编译错误提示功能
    "C_Cpp.formatting": "clangFormat",
    "C_Cpp.clang_format_style": "file",
    "C_Cpp.clang_format_fallbackStyle": "LLVM",
