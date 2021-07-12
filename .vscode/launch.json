@@ -6,8 +6,8 @@
    "configurations": [
       {
          "cwd": "${workspaceRoot}",
-         "executable": "build_dir/smart-car.elf",
-         "name": "smart-car",
+         "executable": "build_dir/smartcar.elf",
+         "name": "smartcar",
          "request": "launch",
          "type": "cortex-debug",
          "servertype": "openocd",

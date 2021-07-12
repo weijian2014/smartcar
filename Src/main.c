@@ -40,7 +40,7 @@ int main(void) {
    uint32_t i = 0;
    float    j = 0.01;
    while (1) {
-      HAL_Delay(500);
+      HAL_Delay(1000);
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 
       printf("weijian, i=%ld, j=%f\n", ++i, j);

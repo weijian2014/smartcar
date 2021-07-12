@@ -18,7 +18,7 @@ set(CMAKE_SIZE "D:/Program Files/stm32/GNU Arm Embedded Toolchain/10 2020-q4-maj
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # 只能放在这里！！不能前移
-project(stm32-template C ASM)
+project(smartcar C ASM)
 
 find_package(CMSIS COMPONENTS STM32F103C8 REQUIRED)
 
@@ -42,7 +42,7 @@ include_directories(
    Drivers/CMSIS/Include
 )
 
-add_executable(smart-car
+add_executable(smartcar
    Src/main.c
    Src/gpio.c
    Src/i2c.c
@@ -67,33 +67,33 @@ add_executable(smart-car
    # Src/system_stm32f1xx.c 这个不需要, 否则编译提示符号重复定义
    # startup_stm32f103xb.s  这个不需要, find_package(CMSIS)时自动找到STM32_CUBE_F1_PATH目录下的Drivers\CMSIS\Device\ST\STM32F1xx\Source\Templates\gcc\startup_stm32f103xb.s
 )
-target_link_libraries(smart-car
+target_link_libraries(smartcar
    CMSIS::STM32::F103C8
    STM32::NoSys
 )
-# stm32_add_linker_script(smart-car STM32F103C8Tx_FLASH.ld)
-# set(CMAKE_EXE_LINKER_FLAGS "-specs=nano.specs -T${PROJECT_SOURCE_DIR}/STM32F103C8Tx_FLASH.ld -Wl,-Map=${PROJECT_BINARY_DIR}/smart-car.map,--cref -Wl,--gc-sections")
+# stm32_add_linker_script(smartcar STM32F103C8Tx_FLASH.ld)
+# set(CMAKE_EXE_LINKER_FLAGS "-specs=nano.specs -T${PROJECT_SOURCE_DIR}/STM32F103C8Tx_FLASH.ld -Wl,-Map=${PROJECT_BINARY_DIR}/smartcar.map,--cref -Wl,--gc-sections")
 
 # 将elf文件转hex和bin
 add_custom_command(
-    TARGET smart-car
-    POST_BUILD COMMAND ${CMAKE_OBJCOPY} -O ihex smart-car.elf smart-car.hex
-    POST_BUILD COMMAND ${CMAKE_OBJCOPY} -O binary smart-car.elf smart-car.bin
+    TARGET smartcar
+    POST_BUILD COMMAND ${CMAKE_OBJCOPY} -O ihex smartcar.elf smartcar.hex
+    POST_BUILD COMMAND ${CMAKE_OBJCOPY} -O binary smartcar.elf smartcar.bin
 )
 
 # 显示代码段大小
 add_custom_command(
-   TARGET smart-car
-   POST_BUILD COMMAND ${CMAKE_SIZE} smart-car.elf
+   TARGET smartcar
+   POST_BUILD COMMAND ${CMAKE_SIZE} smartcar.elf
 )
 
 add_custom_command(
-   TARGET smart-car
-   POST_BUILD COMMAND ${CMAKE_SIZE} smart-car.hex
+   TARGET smartcar
+   POST_BUILD COMMAND ${CMAKE_SIZE} smartcar.hex
 )
 
-# smart-car.bin会报一个错误
+# smartcar.bin会报一个错误
 # add_custom_command(
-#    TARGET smart-car
-#    POST_BUILD COMMAND ${CMAKE_SIZE} smart-car.bin
+#    TARGET smartcar
+#    POST_BUILD COMMAND ${CMAKE_SIZE} smartcar.bin
 # )
