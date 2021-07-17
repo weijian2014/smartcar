@@ -1,11 +1,12 @@
 #include "main.h"
+#include "esp01s.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "stdio.h" // printf
 #include "usart.h"
 
 #if 1
-// 将标准输出重定向到USART1上, 这样可以使用printf打印到USART1
+// 将标准输出重定向到USART2上, 这样可以使用printf打印到USART2
 #ifdef __GNUC__
 #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 #else
@@ -14,7 +15,7 @@
 
 PUTCHAR_PROTOTYPE {
    uint8_t temp[1] = { ch };
-   HAL_UART_Transmit(&huart1, temp, 1, 0xffff);
+   HAL_UART_Transmit(&huart2, temp, 1, 0xffff);
    return ch;
 }
 
@@ -33,17 +34,17 @@ void SystemClock_Config(void);
 int main(void) {
    HAL_Init();
    SystemClock_Config();
+   MX_USART1_UART_Init();
+   MX_USART2_UART_Init();
    MX_GPIO_Init();
    MX_I2C1_Init();
-   MX_USART1_UART_Init();
 
+   ESP01S_Init();
    uint32_t i = 0;
-   float    j = 0.01;
    while (1) {
       HAL_Delay(1000);
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-
-      printf("weijian, i=%ld, j=%f\n", ++i, j);
+      printf("i=%ld\n", ++i);
    }
 }
 
