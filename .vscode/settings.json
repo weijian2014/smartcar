@@ -97,6 +97,8 @@
       "i2c.h": "c",
       "main.h": "c",
       "usart.h": "c",
-      "esp01s.h": "c"
+      "esp01s.h": "c",
+      "stdio.h": "c",
+      "dma.h": "c"
    }
 }

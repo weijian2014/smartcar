@@ -3,7 +3,9 @@
 #include "string.h" //  memset
 #include "usart.h"
 
-uint8_t ESP01S_Recv_Buf[ESP01S_Buf_Max_Len]; // 串口接收到的数据
+uint8_t  ESP01S_Recv_Buf[ESP01S_Buf_Max_Len]; // 串口接收到的数据
+uint32_t ESP01S_Recv_Size = 0;
+
 uint8_t ESP01S_Send_Buf[ESP01S_Buf_Max_Len]; // 发送给串口的数据
 
 void ESP01S_Init() {
@@ -34,13 +36,23 @@ void ESP01S_Init() {
 
 // USART1中断后的处理入口
 void USART1_IRQHandler(void) {
+   // 这个必须调用
+   HAL_UART_IRQHandler(&huart1);
+
    // 判断是否为USART1的IDLE中断
+   // if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE) != RESET) {
    if (__HAL_UART_GET_IT_SOURCE(&huart1, UART_IT_IDLE) != RESET) {
-      __HAL_UART_CLEAR_IDLEFLAG(&huart1);                                                   // 清除中断标记
-      HAL_UART_AbortReceive(&huart1);                                                       // 停止DMA接收
-      uint32_t recvLen         = ESP01S_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
-      ESP01S_Recv_Buf[recvLen] = '\0';                                                      // 添加结束符
-      printf("ESP01S revc recvLen=[%ld], data=[%s]\n", recvLen, ESP01S_Recv_Buf);
-      HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Buf_Max_Len); // 重新启动DMA接收
+      __HAL_UART_CLEAR_IDLEFLAG(&huart1); // 清除中断标记
+      HAL_UART_AbortReceive(&huart1);     // 停止DMA接收
+
+      // todo weijian HAL_UART_Transmit_DMA()发送完成中断也会进到这里!
+
+      ESP01S_Recv_Size                  = ESP01S_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
+      ESP01S_Recv_Buf[ESP01S_Recv_Size] = '\0';                                                      // 添加结束符
+      if (ESP01S_Recv_Size != 0) {
+         printf("ESP01S revc recvLen=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
+      }
+
+      HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Buf_Max_Len); // DMA_NORMAL需要重新启动DMA接收, 如果是DMA_CIRCULAR模式, 则不需要再次启动
    }
 }

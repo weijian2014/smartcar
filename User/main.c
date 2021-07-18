@@ -44,8 +44,13 @@ int main(void) {
    ESP01S_Init();
    uint32_t i = 0;
    while (1) {
-      HAL_Delay(1000);
-      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      // HAL_Delay(1000);
+      // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+
+      if (ESP01S_Recv_Size > 0) {
+         HAL_UART_Transmit_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Recv_Size);
+         ESP01S_Recv_Size = 0;
+      }
    }
 }
 
