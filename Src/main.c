@@ -1,4 +1,5 @@
 #include "main.h"
+#include "dma.h"
 #include "esp01s.h"
 #include "gpio.h"
 #include "i2c.h"
@@ -34,10 +35,11 @@ void SystemClock_Config(void);
 int main(void) {
    HAL_Init();
    SystemClock_Config();
+   MX_GPIO_Init();
+   MX_DMA_Init();
+   MX_I2C1_Init();
    MX_USART1_UART_Init();
    MX_USART2_UART_Init();
-   MX_GPIO_Init();
-   MX_I2C1_Init();
 
    ESP01S_Init();
    while (1) {

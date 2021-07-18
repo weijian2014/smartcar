@@ -13,6 +13,7 @@ void ESP01S_Init() {
    HAL_NVIC_EnableIRQ(USART1_IRQn);
 
    // 打开USART1的DMA接收
+   // usart.c中的HAL_UART_MspInit()已经对USART1的DMA做了初始化, 使用第5通道
    HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Recv_Buf_LEN);
 
    // 开启USART1的IDLE中断, IDLE就是串口收到一帧数据(一次发来的数据)后，发生的中断.
@@ -35,7 +36,7 @@ void USART1_IRQHandler(void) {
       HAL_UART_DMAStop(&huart1);                                                             // 停止DMA接收
       uint32_t recvLen         = ESP01S_Recv_Buf_LEN - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
       ESP01S_Recv_Buf[recvLen] = '\0';                                                       // 添加结束符
-      printf("ESP01S revc temp=[%ld], data=[%s]\n", recvLen, ESP01S_Recv_Buf);
+      printf("ESP01S revc recvLen=[%ld], data=[%s]\n", recvLen, ESP01S_Recv_Buf);
       HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Recv_Buf_LEN); // 重新启动DMA接收
    }
 }

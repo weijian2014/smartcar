@@ -47,6 +47,7 @@ add_executable(smartcar
    Src/gpio.c
    Src/i2c.c
    Src/usart.c
+   Src/dma.c
    src/esp01s.c
    Src/stm32f1xx_it.c
    Src/stm32f1xx_hal_msp.c
