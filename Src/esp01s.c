@@ -3,7 +3,8 @@
 #include "string.h" //  memset
 #include "usart.h"
 
-uint8_t ESP01S_Recv_Buf[ESP01S_Recv_Buf_Max_Len]; // 从串口接收到的数据
+uint8_t ESP01S_Recv_Buf[ESP01S_Buf_Max_Len]; // 串口接收到的数据
+uint8_t ESP01S_Send_Buf[ESP01S_Buf_Max_Len]; // 发送给串口的数据
 
 void ESP01S_Init() {
    // ESP01S接在USART1上,上电自动设置为station模式, 自动接入wifi:xiaoj,自动以TCP客户端连接192.168.2.102:8888
@@ -12,9 +13,15 @@ void ESP01S_Init() {
    HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
    HAL_NVIC_EnableIRQ(USART1_IRQn);
 
+   // DMA的中断在dma.c中的MX_DMA_Init()开启
+
    // 打开USART1的DMA接收
-   // usart.c中的HAL_UART_MspInit()已经对USART1的接收(P-->M)和发送(M-->P)DMA做了初始化, 使用DMA1的第5通道(表59)
-   HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Recv_Buf_Max_Len);
+   // usart.c中的HAL_UART_MspInit()已经对USART1的接收(P-->M)DMA做了初始化, 使用DMA1的第5通道(表59)
+   HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Buf_Max_Len);
+
+   // 打开USART1的DMA发送
+   // usart.c中的HAL_UART_MspInit()已经对USART1的发送(M-->P)DMA做了初始化, 使用DMA1的第4通道(表59)
+   // HAL_UART_Transmit_DMA(&huart1, ESP01S_Send_Buf, ESP01S_Buf_Max_Len);
 
    // 开启USART1的IDLE中断, IDLE就是串口收到一帧数据(一次发来的数据)后，发生的中断.
    // RXNE中断和IDLE中断的区别:当接收到1个字节，就会产生RXNE中断，当接收到一帧数据，就会产生IDLE中断
@@ -29,11 +36,12 @@ void ESP01S_Init() {
 void USART1_IRQHandler(void) {
    // 判断是否为USART1的IDLE中断
    if (__HAL_UART_GET_IT_SOURCE(&huart1, UART_IT_IDLE) != RESET) {
-      __HAL_UART_CLEAR_IDLEFLAG(&huart1);                                                        // 清除中断标记
-      HAL_UART_DMAStop(&huart1);                                                                 // 停止DMA接收
-      uint32_t recvLen         = ESP01S_Recv_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
-      ESP01S_Recv_Buf[recvLen] = '\0';                                                           // 添加结束符
+      __HAL_UART_CLEAR_IDLEFLAG(&huart1);                                                   // 清除中断标记
+      HAL_UART_AbortReceive(&huart1);                                                       // 停止DMA接收
+      uint32_t recvLen         = ESP01S_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
+      ESP01S_Recv_Buf[recvLen] = '\0';                                                      // 添加结束符
       printf("ESP01S revc recvLen=[%ld], data=[%s]\n", recvLen, ESP01S_Recv_Buf);
-      HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Recv_Buf_Max_Len); // 重新启动DMA接收
+      // HAL_UART_Transmit_DMA(&huart1, ESP01S_Recv_Buf, recvLen);
+      HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Buf_Max_Len); // 重新启动DMA接收
    }
 }
