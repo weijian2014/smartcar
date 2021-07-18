@@ -42,6 +42,7 @@ int main(void) {
    MX_USART2_UART_Init();
 
    ESP01S_Init();
+   uint32_t i = 0;
    while (1) {
       HAL_Delay(1000);
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);

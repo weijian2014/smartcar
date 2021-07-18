@@ -41,7 +41,6 @@ void USART1_IRQHandler(void) {
       uint32_t recvLen         = ESP01S_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
       ESP01S_Recv_Buf[recvLen] = '\0';                                                      // 添加结束符
       printf("ESP01S revc recvLen=[%ld], data=[%s]\n", recvLen, ESP01S_Recv_Buf);
-      // HAL_UART_Transmit_DMA(&huart1, ESP01S_Recv_Buf, recvLen);
       HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Buf_Max_Len); // 重新启动DMA接收
    }
 }
