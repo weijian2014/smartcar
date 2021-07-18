@@ -40,11 +40,9 @@ int main(void) {
    MX_I2C1_Init();
 
    ESP01S_Init();
-   uint32_t i = 0;
    while (1) {
       HAL_Delay(1000);
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-      printf("i=%ld\n", ++i);
    }
 }
 

@@ -28,7 +28,7 @@
       {
          "label": "Cmake",
          "type": "shell",
-         "command": "mkdir -p build_dir && cd build_dir && cmake -DCMAKE_BUILD_TYPE=Debug .. -G Ninja && ninja",
+         "command": "echo '==============================================' && mkdir -p build_dir && cd build_dir && cmake -DCMAKE_BUILD_TYPE=Debug .. -G Ninja && ninja",
          "group": "build",
          "problemMatcher": []
       },
