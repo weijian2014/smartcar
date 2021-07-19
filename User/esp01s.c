@@ -23,7 +23,7 @@ void ESP01S_Init() {
 
    // 打开USART1的DMA发送
    // usart.c中的HAL_UART_MspInit()已经对USART1的发送(M-->P)DMA做了初始化, 使用DMA1的第4通道(表59)
-   // HAL_UART_Transmit_DMA(&huart1, ESP01S_Send_Buf, ESP01S_Buf_Max_Len);
+   HAL_NVIC_DisableIRQ(DMA1_Channel4_IRQn); // 关闭DMA1第4通道的中断
 
    // 开启USART1的IDLE中断, IDLE就是串口收到一帧数据(一次发来的数据)后，发生的中断.
    // RXNE中断和IDLE中断的区别:当接收到1个字节，就会产生RXNE中断，当接收到一帧数据，就会产生IDLE中断
@@ -45,13 +45,9 @@ void USART1_IRQHandler(void) {
       __HAL_UART_CLEAR_IDLEFLAG(&huart1); // 清除中断标记
       HAL_UART_AbortReceive(&huart1);     // 停止DMA接收
 
-      // todo weijian HAL_UART_Transmit_DMA()发送完成中断也会进到这里!
-
       ESP01S_Recv_Size                  = ESP01S_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
       ESP01S_Recv_Buf[ESP01S_Recv_Size] = '\0';                                                      // 添加结束符
-      if (ESP01S_Recv_Size != 0) {
-         printf("ESP01S revc recvLen=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
-      }
+      printf("ESP01S revc recvLen=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
 
       HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Buf_Max_Len); // DMA_NORMAL需要重新启动DMA接收, 如果是DMA_CIRCULAR模式, 则不需要再次启动
    }
