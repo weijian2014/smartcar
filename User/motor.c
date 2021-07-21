@@ -28,7 +28,7 @@ void Motor_RunS(uint8_t id, uint32_t rpm) {
    buf[8] = checksum(buf);
    buf[9] = Motor_FRAME_END;
 
-   HAL_HalfDuplex_EnableTransmitter(&huart2); // 为半双工模式要求每次发送和接收都需要使能相应的功能
+   // HAL_HalfDuplex_EnableTransmitter(&huart2); // 为半双工模式要求每次发送和接收都需要使能相应的功能
    HAL_UART_Transmit(&huart2, buf, 10, 100);
 }
 
@@ -45,17 +45,17 @@ void Motor_RunN(uint8_t id, uint32_t rpm) {
    buf[8] = checksum(buf);
    buf[9] = Motor_FRAME_END;
 
-   HAL_HalfDuplex_EnableTransmitter(&huart2); // 为半双工模式要求每次发送和接收都需要使能相应的功能
+   // HAL_HalfDuplex_EnableTransmitter(&huart2); // 为半双工模式要求每次发送和接收都需要使能相应的功能
    HAL_UART_Transmit(&huart2, buf, 10, 100);
 }
 
 void Motor_Init() {
    // 小车的马达接在一个控制板上, 控制板接在STM32C8T6的USART2上. 控制马达要求使用半双工模式, usart.c中的MX_USART2_UART_Init()已经将USART2配置为半双工模式(HAL_HalfDuplex_Init)
    //   控制板       STM32C8T6
-   //   5v            3.3v
-   //   GND           GND
-   //   RX            PA2(USART2_TX)
-   //   TX            PA3(USART2_RX)
+   //   5v            3.3v             可以不接VCC
+   //   GND           GND              GND必须接!!!
+   //   TX            PA2(USART2_TX)   控制板的TX和RX反了!!!必须这样接!!!
+   //   RX            PA3(USART2_RX)
 
    Motor_RunN(1, 0); //电机1停止
    Motor_RunN(2, 0); //电机2停止

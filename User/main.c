@@ -7,8 +7,8 @@
 #include "stdio.h" // printf
 #include "usart.h"
 
-#if 0
-// 将标准输出重定向到USART2上, 这样可以使用printf打印到USART2
+#if 1
+// 将标准输出重定向到USART3上
 #ifdef __GNUC__
 #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 #else
@@ -17,7 +17,7 @@
 
 PUTCHAR_PROTOTYPE {
    uint8_t temp[1] = { ch };
-   HAL_UART_Transmit(&huart2, temp, 1, 0xffff);
+   HAL_UART_Transmit(&huart3, temp, 1, 0xffff);
    return ch;
 }
 
@@ -28,7 +28,7 @@ int _write(int file, char* ptr, int len) {
    }
    return len;
 }
-// 将标准输出重定向到USART1上, 这样可以使用printf打印到USART1
+// 将标准输出重定向到USART3上
 #endif
 
 void SystemClock_Config(void);
@@ -41,6 +41,7 @@ int main(void) {
    MX_I2C1_Init();
    MX_USART1_UART_Init();
    MX_USART2_UART_Init();
+   MX_USART3_UART_Init();
 
    ESP01S_Init();
    Motor_Init();
@@ -49,11 +50,11 @@ int main(void) {
       // HAL_Delay(500);
       // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 
-      // Motor_RunS(1, 300); //电机1正转
-      // Motor_RunS(2, 300); //电机2正转
+      // Motor_RunS(1, 200); //电机1正转
+      // Motor_RunS(2, 200); //电机2正转
       // HAL_Delay(1000);
-      // Motor_RunN(1, 300); //电机1反转
-      // Motor_RunN(2, 300); //电机2反转
+      // Motor_RunN(1, 200); //电机1反转
+      // Motor_RunN(2, 200); //电机2反转
       // HAL_Delay(1000);
       // Motor_RunN(1, 0); //电机1停止
       // Motor_RunN(2, 0); //电机2停止
