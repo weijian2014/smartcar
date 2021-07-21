@@ -45,11 +45,12 @@ include_directories(
 
 add_executable(smartcar
    User/main.c
+   User/esp01s.c
+   User/motor.c
    Src/gpio.c
    Src/i2c.c
    Src/usart.c
    Src/dma.c
-   User/esp01s.c
    Src/stm32f1xx_it.c
    Src/stm32f1xx_hal_msp.c
    Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c

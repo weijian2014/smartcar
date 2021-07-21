@@ -42,15 +42,37 @@ int main(void) {
    MX_USART2_UART_Init();
 
    ESP01S_Init();
-   uint32_t i = 0;
+   uint32_t len = 0;
+   uint8_t  echo[ESP01S_Buf_Max_Len + 32];
+   uint8_t  buf[10];
+
+   // FA AF 01 01 FD 00 02 58 59 ED
+   buf[0] = 0xFA;
+   buf[1] = 0xAF;
+   buf[2] = 0x01;
+   buf[3] = 0x01;
+   buf[4] = 0xFD;
+   buf[5] = 0x00;
+   buf[6] = 0x02;
+   buf[7] = 0x58;
+   buf[8] = 0x59;
+   buf[9] = 0xED;
+
    while (1) {
-      // HAL_Delay(1000);
+      // HAL_Delay(500);
       // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 
       if (ESP01S_Recv_Size > 0) {
-         HAL_UART_Transmit_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Recv_Size);
+         len = sprintf((char*)echo, "Recv from ESP01S, len=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
+         HAL_UART_Transmit_DMA(&huart1, echo, len);
          ESP01S_Recv_Size = 0;
+         HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
       }
+
+      // HAL_HalfDuplex_EnableTransmitter(&huart2); // 为半双工模式要求每次发送和接收都需要使能相应的功能
+      // HAL_HalfDuplex_EnableReceiver(&huart2);
+      // printf("%s", ESP01S_Recv_Buf);
+      // HAL_UART_Transmit(&huart2, buf, 10, 100);
    }
 }
 

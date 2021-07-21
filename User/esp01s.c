@@ -9,6 +9,13 @@ uint32_t ESP01S_Recv_Size = 0;
 uint8_t ESP01S_Send_Buf[ESP01S_Buf_Max_Len]; // 发送给串口的数据
 
 void ESP01S_Init() {
+   // ESP01S接在STM32C8T6的USART1上
+   //   ESP01S      STM32C8T6
+   //   3.3v          3.3v
+   //   GND           GND
+   //   RX            PA9(USART1_TX)
+   //   TX            PA10(USART1_RX)
+
    // ESP01S接在USART1上,上电自动设置为station模式, 自动接入wifi:xiaoj,自动以TCP客户端连接192.168.2.102:8888
 
    // 配置USART1的中断优先级并打开USART1的中断开关
@@ -23,7 +30,8 @@ void ESP01S_Init() {
 
    // 打开USART1的DMA发送
    // usart.c中的HAL_UART_MspInit()已经对USART1的发送(M-->P)DMA做了初始化, 使用DMA1的第4通道(表59)
-   HAL_NVIC_DisableIRQ(DMA1_Channel4_IRQn); // 关闭DMA1第4通道的中断
+   // HAL_NVIC_DisableIRQ(DMA1_Channel4_IRQn); // 关闭DMA1第4通道的中断
+   // __HAL_UART_DISABLE_IT(&huart1, UART_FLAG_TXE);
 
    // 开启USART1的IDLE中断, IDLE就是串口收到一帧数据(一次发来的数据)后，发生的中断.
    // RXNE中断和IDLE中断的区别:当接收到1个字节，就会产生RXNE中断，当接收到一帧数据，就会产生IDLE中断
@@ -42,12 +50,14 @@ void USART1_IRQHandler(void) {
    // 判断是否为USART1的IDLE中断
    // if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE) != RESET) {
    if (__HAL_UART_GET_IT_SOURCE(&huart1, UART_IT_IDLE) != RESET) {
-      __HAL_UART_CLEAR_IDLEFLAG(&huart1); // 清除中断标记
+      __HAL_UART_CLEAR_IDLEFLAG(&huart1); // 清除IDLE中断标记
       HAL_UART_AbortReceive(&huart1);     // 停止DMA接收
 
       ESP01S_Recv_Size                  = ESP01S_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
       ESP01S_Recv_Buf[ESP01S_Recv_Size] = '\0';                                                      // 添加结束符
-      printf("ESP01S revc recvLen=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
+      if (ESP01S_Recv_Size) {
+         printf("Recv from ESP01S, len=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
+      }
 
       HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Buf_Max_Len); // DMA_NORMAL需要重新启动DMA接收, 如果是DMA_CIRCULAR模式, 则不需要再次启动
    }
