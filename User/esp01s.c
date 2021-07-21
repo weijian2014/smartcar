@@ -56,7 +56,13 @@ void USART1_IRQHandler(void) {
       ESP01S_Recv_Size                  = ESP01S_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
       ESP01S_Recv_Buf[ESP01S_Recv_Size] = '\0';                                                      // 添加结束符
       if (ESP01S_Recv_Size) {
-         printf("Recv from ESP01S, len=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
+         // printf("Recv from ESP01S, len=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf); // output to USART2
+         uint32_t len = 0;
+         uint8_t  echo[ESP01S_Buf_Max_Len + 32];
+         len = sprintf((char*)echo, "Recv from ESP01S, len=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
+         HAL_UART_Transmit_DMA(&huart1, echo, len); // output to USART1
+         ESP01S_Recv_Size = 0;
+         HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
       }
 
       HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Buf_Max_Len); // DMA_NORMAL需要重新启动DMA接收, 如果是DMA_CIRCULAR模式, 则不需要再次启动

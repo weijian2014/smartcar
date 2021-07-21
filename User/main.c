@@ -3,10 +3,11 @@
 #include "esp01s.h"
 #include "gpio.h"
 #include "i2c.h"
+#include "motor.h"
 #include "stdio.h" // printf
 #include "usart.h"
 
-#if 1
+#if 0
 // 将标准输出重定向到USART2上, 这样可以使用printf打印到USART2
 #ifdef __GNUC__
 #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
@@ -42,37 +43,21 @@ int main(void) {
    MX_USART2_UART_Init();
 
    ESP01S_Init();
-   uint32_t len = 0;
-   uint8_t  echo[ESP01S_Buf_Max_Len + 32];
-   uint8_t  buf[10];
-
-   // FA AF 01 01 FD 00 02 58 59 ED
-   buf[0] = 0xFA;
-   buf[1] = 0xAF;
-   buf[2] = 0x01;
-   buf[3] = 0x01;
-   buf[4] = 0xFD;
-   buf[5] = 0x00;
-   buf[6] = 0x02;
-   buf[7] = 0x58;
-   buf[8] = 0x59;
-   buf[9] = 0xED;
+   Motor_Init();
 
    while (1) {
       // HAL_Delay(500);
       // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 
-      if (ESP01S_Recv_Size > 0) {
-         len = sprintf((char*)echo, "Recv from ESP01S, len=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
-         HAL_UART_Transmit_DMA(&huart1, echo, len);
-         ESP01S_Recv_Size = 0;
-         HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-      }
-
-      // HAL_HalfDuplex_EnableTransmitter(&huart2); // 为半双工模式要求每次发送和接收都需要使能相应的功能
-      // HAL_HalfDuplex_EnableReceiver(&huart2);
-      // printf("%s", ESP01S_Recv_Buf);
-      // HAL_UART_Transmit(&huart2, buf, 10, 100);
+      // Motor_RunS(1, 300); //电机1正转
+      // Motor_RunS(2, 300); //电机2正转
+      // HAL_Delay(1000);
+      // Motor_RunN(1, 300); //电机1反转
+      // Motor_RunN(2, 300); //电机2反转
+      // HAL_Delay(1000);
+      // Motor_RunN(1, 0); //电机1停止
+      // Motor_RunN(2, 0); //电机2停止
+      // HAL_Delay(1000);
    }
 }
 
