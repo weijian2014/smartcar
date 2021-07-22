@@ -46,21 +46,30 @@ int main(void) {
    ESP01S_Init();
    Motor_Init();
 
+   uint16_t rpm = 150;
+   (void)rpm;
    while (1) {
       // HAL_Delay(500);
       // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 
-      Motor_RunS(1, 200); //电机1正转
-      Motor_RunS(2, 200); //电机2正转
+#if 0
+      Motor_RunS(1, rpm); //电机1正转
+      Motor_RunS(2, rpm); //电机2正转
       Motor_Speed(1);
       HAL_Delay(1000);
-      Motor_RunN(1, 200); //电机1反转
-      Motor_RunN(2, 200); //电机2反转
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+
+      Motor_RunN(1, rpm); //电机1反转
+      Motor_RunN(2, rpm); //电机2反转
       Motor_Speed(2);
       HAL_Delay(1000);
-      Motor_RunN(1, 0); //电机1停止
-      Motor_RunN(2, 0); //电机2停止
-      HAL_Delay(1000);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+
+      // Motor_RunN(1, 0); //电机1停止
+      // Motor_RunN(2, 0); //电机2停止
+      // HAL_Delay(1000);
+      // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+#endif
    }
 }
 

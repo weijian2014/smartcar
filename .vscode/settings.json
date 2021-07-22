@@ -99,6 +99,8 @@
       "usart.h": "c",
       "esp01s.h": "c",
       "stdio.h": "c",
-      "dma.h": "c"
+      "dma.h": "c",
+      "motor.h": "c",
+      "limits": "c"
    }
 }

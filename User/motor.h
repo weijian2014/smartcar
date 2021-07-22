@@ -3,6 +3,12 @@
 
 #include "stdint.h"
 
+struct MotorConfigulation {
+   uint8_t isGetSpeed;
+};
+
+extern struct MotorConfigulation MotorConfig;
+
 // FA 帧头1 | AF 帧头2 | ID | 指令 | 参数1H | 参数1L | 参数2H | 参数2L | 校验 | ED 结束码
 // 指令:
 //    0X01 电机控制转速
@@ -29,7 +35,7 @@ void Motor_RunS(uint8_t id, uint32_t rpm);
 // 电机逆时针转
 void Motor_RunN(uint8_t id, uint32_t rpm);
 
-uint32_t Motor_Speed(uint8_t id);
+void Motor_Speed(uint8_t id);
 
 void Motor_Init();
 

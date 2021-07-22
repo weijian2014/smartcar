@@ -1,13 +1,34 @@
 #include "motor.h"
+#include "stdio.h"
 #include "usart.h"
+
+#define Recv_Send_Timeout 5
+#define Motor_Buf_Max_Len 10
+uint8_t Motor_Recv_Buf[Motor_Buf_Max_Len];
+
+struct MotorConfigulation MotorConfig;
+
+void send(uint8_t* pData, uint16_t Size) {
+   HAL_UART_Transmit(&huart2, pData, Size, Recv_Send_Timeout);
+}
+
+void printfRecvBuf(uint8_t id, char* prefix) {
+   printf("%s, id=[%d], buf=[%02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X]\n", prefix, id, Motor_Recv_Buf[0], Motor_Recv_Buf[1], Motor_Recv_Buf[2], Motor_Recv_Buf[3], Motor_Recv_Buf[4],
+          Motor_Recv_Buf[5], Motor_Recv_Buf[6], Motor_Recv_Buf[7], Motor_Recv_Buf[8], Motor_Recv_Buf[9]);
+}
+
+void parseSpeed(uint8_t id) {
+   if (Motor_FRAME_HEADER1 != Motor_Recv_Buf[0] || Motor_FRAME_HEADER2 != Motor_Recv_Buf[1] || Motor_FRAME_END != Motor_Recv_Buf[9]) {
+      printfRecvBuf(id, "parseSpeed, get speed fail");
+      return;
+   }
+   uint16_t targetSpeed = (uint16_t)Motor_Recv_Buf[4] + (uint16_t)Motor_Recv_Buf[5];
+   uint16_t realSpeed   = (uint16_t)Motor_Recv_Buf[6] + (uint16_t)Motor_Recv_Buf[7];
+   printf("parseSpeed, id=[%d], targetSpeed=[%d], realSpeed=[%d]\n", id, targetSpeed, realSpeed);
+}
 
 #define GET_LOW_BYTE(A) ((uint8_t)(A))
 #define GET_HIGH_BYTE(A) ((uint8_t)((A) >> 8))
-
-void send(UART_HandleTypeDef* huart, uint8_t* pData, uint16_t Size, uint32_t Timeout) {
-   // HAL_HalfDuplex_EnableTransmitter(&huart2); // 为半双工模式要求每次发送和接收都需要使能相应的功能
-   HAL_UART_Transmit(huart, pData, Size, Timeout);
-}
 
 uint8_t checksum(uint8_t buf[]) {
    uint8_t  i;
@@ -22,27 +43,28 @@ uint8_t checksum(uint8_t buf[]) {
 
 void Motor_RunS(uint8_t id, uint32_t rpm) {
    uint8_t buf[10] = { Motor_FRAME_HEADER1, Motor_FRAME_HEADER2, id, 0x01, Motor_RUNS, 0x00, GET_HIGH_BYTE(rpm), GET_LOW_BYTE(rpm), checksum(buf), Motor_FRAME_END };
-   send(&huart2, buf, 10, 100);
+   send(buf, 10);
+
+   if (!MotorConfig.isGetSpeed) {
+      return;
+   }
+
+   // 返回 0XAA+id（只返回1个字节）
+   HAL_UART_Receive(&huart2, Motor_Recv_Buf, Motor_Buf_Max_Len, Recv_Send_Timeout);
+   printfRecvBuf(id, "Motor_RunS");
 }
 
 void Motor_RunN(uint8_t id, uint32_t rpm) {
    uint8_t buf[10] = { Motor_FRAME_HEADER1, Motor_FRAME_HEADER2, id, 0x01, Motor_RUNN, 0x00, GET_HIGH_BYTE(rpm), GET_LOW_BYTE(rpm), checksum(buf), Motor_FRAME_END };
-   send(&huart2, buf, 10, 100);
-}
+   send(buf, 10);
 
-uint32_t Motor_Speed(uint8_t id) {
-   uint8_t buf[10] = { Motor_FRAME_HEADER1, Motor_FRAME_HEADER2, id, Motor_READ_ANGLE, 0x00, 0x00, 0x00, 0x00, checksum(buf), Motor_FRAME_END };
-   send(&huart2, buf, 10, 100);
+   if (!MotorConfig.isGetSpeed) {
+      return;
+   }
 
-   uint8_t speed[16];
-   speed[15] = '\0';
-   if (HAL_OK != HAL_UART_Receive(&huart2, speed, 16, 100)) {
-      printf("Read speed fail from id=[%d]\n", id);
-   }
-   else {
-      printf("Read speed ok, id=[%d], speed=[%s]\n", id, speed);
-   }
-   return 0;
+   // 返回 0XAA+id（只返回1个字节）
+   HAL_UART_Receive(&huart2, Motor_Recv_Buf, Motor_Buf_Max_Len, Recv_Send_Timeout);
+   // printfRecvBuf(id, "Motor_RunN");
 }
 
 void Motor_Turnoff_Led(uint8_t id) {
@@ -56,21 +78,46 @@ void Motor_Turnoff_Led(uint8_t id) {
                        0x00,
                        checksum(buf),
                        Motor_FRAME_END };
-   send(&huart2, buf, 10, 100);
+   send(buf, 10);
+
+   if (!MotorConfig.isGetSpeed) {
+      return;
+   }
+
+   // 返回 0XAA+id（只返回1个字节）
+   HAL_UART_Receive(&huart2, Motor_Recv_Buf, Motor_Buf_Max_Len, Recv_Send_Timeout);
+   // printfRecvBuf(id, "Motor_Turnoff_Led");
+}
+
+// 该接口为阻塞接收, 会有延迟!!! 慎用, 当不使用该接口时, 其它Motor_XXX接口可以不接收返回的一个字节! 充分利用CPU资源
+void Motor_Speed(uint8_t id) {
+   if (!MotorConfig.isGetSpeed) {
+      return;
+   }
+
+   uint8_t buf[10] = { Motor_FRAME_HEADER1, Motor_FRAME_HEADER2, id, Motor_READ_ANGLE, 0x00, 0x00, 0x00, 0x00, checksum(buf), Motor_FRAME_END };
+   send(buf, 10);
+
+   HAL_UART_Receive(&huart2, Motor_Recv_Buf, Motor_Buf_Max_Len, Recv_Send_Timeout);
+   printfRecvBuf(id, "Motor_Speed");
+   parseSpeed(id);
 }
 
 void Motor_Init() {
-   // 小车的马达接在一个控制板上, 控制板接在STM32C8T6的USART2上.
-   // 控制马达要求使用半双工模式, usart.c中的MX_USART2_UART_Init()已经将USART2配置为半双工模式(HAL_HalfDuplex_Init)
+   // 单片机--马达 要求使用半双工模式
+   // 马达--控制板--单片机, 可以使用全双工模式
+   // 本工程将控制板接在STM32C8T6的USART2上, 全双工模式
    //   控制板       STM32C8T6
    //   5v            3.3v             可以不接VCC
    //   GND           GND              GND必须接!!!
    //   TX            PA2(USART2_TX)   控制板的TX和RX反了!!!必须这样接!!!
    //   RX            PA3(USART2_RX)
 
-   Motor_Turnoff_Led(1);
-   Motor_Turnoff_Led(2);
+   Motor_Turnoff_Led(1); // 关掉电机1的LED
+   Motor_Turnoff_Led(2); // 关掉电机1的LED
 
    Motor_RunN(1, 0); //电机1停止
    Motor_RunN(2, 0); //电机2停止
+
+   MotorConfig.isGetSpeed = 0; // 不从电机获取速度, 提高系统响应及性能
 }
