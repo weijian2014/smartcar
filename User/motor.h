@@ -29,6 +29,8 @@ void Motor_RunS(uint8_t id, uint32_t rpm);
 // 电机逆时针转
 void Motor_RunN(uint8_t id, uint32_t rpm);
 
+uint32_t Motor_Speed(uint8_t id);
+
 void Motor_Init();
 
 #endif // _SMARTCAR_MOTOR_H_

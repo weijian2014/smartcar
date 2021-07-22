@@ -41,7 +41,7 @@ int main(void) {
    MX_I2C1_Init();
    MX_USART1_UART_Init();
    MX_USART2_UART_Init();
-   MX_USART3_UART_Init();
+   MX_USART3_UART_Init(); // 使用调用, printf
 
    ESP01S_Init();
    Motor_Init();
@@ -50,15 +50,17 @@ int main(void) {
       // HAL_Delay(500);
       // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 
-      // Motor_RunS(1, 200); //电机1正转
-      // Motor_RunS(2, 200); //电机2正转
-      // HAL_Delay(1000);
-      // Motor_RunN(1, 200); //电机1反转
-      // Motor_RunN(2, 200); //电机2反转
-      // HAL_Delay(1000);
-      // Motor_RunN(1, 0); //电机1停止
-      // Motor_RunN(2, 0); //电机2停止
-      // HAL_Delay(1000);
+      Motor_RunS(1, 200); //电机1正转
+      Motor_RunS(2, 200); //电机2正转
+      Motor_Speed(1);
+      HAL_Delay(1000);
+      Motor_RunN(1, 200); //电机1反转
+      Motor_RunN(2, 200); //电机2反转
+      Motor_Speed(2);
+      HAL_Delay(1000);
+      Motor_RunN(1, 0); //电机1停止
+      Motor_RunN(2, 0); //电机2停止
+      HAL_Delay(1000);
    }
 }
 
