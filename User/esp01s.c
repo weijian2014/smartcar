@@ -9,7 +9,7 @@ uint32_t ESP01S_Recv_Size = 0;
 uint8_t ESP01S_Send_Buf[ESP01S_Buf_Max_Len]; // 发送给串口的数据
 
 void ESP01S_Init() {
-   // ESP01S接在STM32C8T6的USART1上
+   // ESP01S接在STM32C8T6的USART1(PA9, PA10)上
    //   ESP01S      STM32C8T6
    //   3.3v          3.3v
    //   GND           GND

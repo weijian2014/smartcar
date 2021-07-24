@@ -105,7 +105,7 @@ void Motor_Speed(uint8_t id) {
 void Motor_Init() {
    // 单片机--马达 要求使用半双工模式
    // 马达--控制板--单片机, 可以使用全双工模式
-   // 本工程将控制板接在STM32C8T6的USART2上, 全双工模式
+   // 本工程将控制板接在STM32C8T6的USART2(PA2, PA3)上, 全双工模式
    //   控制板       STM32C8T6
    //   5v            3.3v             可以不接VCC
    //   GND           GND              GND必须接!!!

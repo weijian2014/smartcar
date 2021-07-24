@@ -4,7 +4,9 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "motor.h"
+#include "servo.h"
 #include "stdio.h" // printf
+#include "tim.h"
 #include "usart.h"
 
 #if 1
@@ -36,21 +38,39 @@ void SystemClock_Config(void);
 int main(void) {
    HAL_Init();
    SystemClock_Config();
-   MX_GPIO_Init();
-   MX_DMA_Init();
-   MX_I2C1_Init();
-   MX_USART1_UART_Init();
-   MX_USART2_UART_Init();
-   MX_USART3_UART_Init(); // 使用调用, printf
+   MX_GPIO_Init();        // LED PC13
+   MX_DMA_Init();         // ESP01S的DMA
+   MX_I2C1_Init();        // 暂时不使用
+   MX_USART1_UART_Init(); // ESP01S
+   MX_USART2_UART_Init(); // 两个马达
+   MX_USART3_UART_Init(); // printf
+   MX_TIM3_Init();        // 舵机的PWM
 
    ESP01S_Init();
    Motor_Init();
+   Servo_Init();
 
    uint16_t rpm = 200;
    (void)rpm;
    while (1) {
       // HAL_Delay(500);
       // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+
+#if 0
+
+      HAL_Delay(rpm);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 2000 - 1); // 180
+      HAL_Delay(rpm);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1500 - 1); // 90
+      HAL_Delay(rpm);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1000 - 1); // 0
+      HAL_Delay(rpm);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1500 - 1); // 90
+#endif
 
 #if 0
       Motor_RunS(1, rpm); //电机1正转
