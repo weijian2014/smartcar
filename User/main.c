@@ -46,7 +46,7 @@ int main(void) {
    ESP01S_Init();
    Motor_Init();
 
-   uint16_t rpm = 150;
+   uint16_t rpm = 200;
    (void)rpm;
    while (1) {
       // HAL_Delay(500);

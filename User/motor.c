@@ -2,14 +2,13 @@
 #include "stdio.h"
 #include "usart.h"
 
-#define Recv_Send_Timeout 5
 #define Motor_Buf_Max_Len 10
 uint8_t Motor_Recv_Buf[Motor_Buf_Max_Len];
 
 struct MotorConfigulation MotorConfig;
 
 void send(uint8_t* pData, uint16_t Size) {
-   HAL_UART_Transmit(&huart2, pData, Size, Recv_Send_Timeout);
+   HAL_UART_Transmit(&huart2, pData, Size, MotorConfig.sendRecvTimeout);
 }
 
 void printfRecvBuf(uint8_t id, char* prefix) {
@@ -50,7 +49,7 @@ void Motor_RunS(uint8_t id, uint32_t rpm) {
    }
 
    // 返回 0XAA+id（只返回1个字节）
-   HAL_UART_Receive(&huart2, Motor_Recv_Buf, Motor_Buf_Max_Len, Recv_Send_Timeout);
+   HAL_UART_Receive(&huart2, Motor_Recv_Buf, Motor_Buf_Max_Len, MotorConfig.sendRecvTimeout);
    printfRecvBuf(id, "Motor_RunS");
 }
 
@@ -63,7 +62,7 @@ void Motor_RunN(uint8_t id, uint32_t rpm) {
    }
 
    // 返回 0XAA+id（只返回1个字节）
-   HAL_UART_Receive(&huart2, Motor_Recv_Buf, Motor_Buf_Max_Len, Recv_Send_Timeout);
+   HAL_UART_Receive(&huart2, Motor_Recv_Buf, Motor_Buf_Max_Len, MotorConfig.sendRecvTimeout);
    // printfRecvBuf(id, "Motor_RunN");
 }
 
@@ -85,7 +84,7 @@ void Motor_Turnoff_Led(uint8_t id) {
    }
 
    // 返回 0XAA+id（只返回1个字节）
-   HAL_UART_Receive(&huart2, Motor_Recv_Buf, Motor_Buf_Max_Len, Recv_Send_Timeout);
+   HAL_UART_Receive(&huart2, Motor_Recv_Buf, Motor_Buf_Max_Len, MotorConfig.sendRecvTimeout);
    // printfRecvBuf(id, "Motor_Turnoff_Led");
 }
 
@@ -98,7 +97,7 @@ void Motor_Speed(uint8_t id) {
    uint8_t buf[10] = { Motor_FRAME_HEADER1, Motor_FRAME_HEADER2, id, Motor_READ_ANGLE, 0x00, 0x00, 0x00, 0x00, checksum(buf), Motor_FRAME_END };
    send(buf, 10);
 
-   HAL_UART_Receive(&huart2, Motor_Recv_Buf, Motor_Buf_Max_Len, Recv_Send_Timeout);
+   HAL_UART_Receive(&huart2, Motor_Recv_Buf, Motor_Buf_Max_Len, MotorConfig.sendRecvTimeout);
    printfRecvBuf(id, "Motor_Speed");
    parseSpeed(id);
 }
@@ -119,5 +118,6 @@ void Motor_Init() {
    Motor_RunN(1, 0); //电机1停止
    Motor_RunN(2, 0); //电机2停止
 
-   MotorConfig.isGetSpeed = 0; // 不从电机获取速度, 提高系统响应及性能
+   MotorConfig.isGetSpeed      = 0; // 不从电机获取速度, 提高系统响应及性能
+   MotorConfig.sendRecvTimeout = 5;
 }

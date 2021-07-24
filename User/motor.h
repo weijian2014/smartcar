@@ -5,6 +5,7 @@
 
 struct MotorConfigulation {
    uint8_t isGetSpeed;
+   uint8_t sendRecvTimeout;
 };
 
 extern struct MotorConfigulation MotorConfig;
