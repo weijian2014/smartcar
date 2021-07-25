@@ -51,12 +51,14 @@ int main(void) {
    Servo_Init();
 
    uint16_t rpm = 200;
-   uint16_t ms  = 3000;
+   uint16_t ms  = 2000;
    (void)rpm;
    (void)ms;
 
-   Motor_RunN(1, 0);
-   Motor_RunS(2, 0);
+#if 0
+   Motor_RunN(1, rpm);
+   Motor_RunS(2, rpm);
+#endif
 
    while (1) {
       // HAL_Delay(500);
