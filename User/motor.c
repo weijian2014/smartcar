@@ -2,10 +2,15 @@
 #include "stdio.h"
 #include "usart.h"
 
+struct MotorConfigulation MotorConfig;
+
+#define Max_Speed_Level 10
+#define Min_Speed_Level 1
+
+uint16_t Speed_Rpm[Max_Speed_Level] = { 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000 };
+
 #define Motor_Buf_Max_Len 10
 uint8_t Motor_Recv_Buf[Motor_Buf_Max_Len];
-
-struct MotorConfigulation MotorConfig;
 
 void send(uint8_t* pData, uint16_t Size) {
    HAL_UART_Transmit(&huart2, pData, Size, MotorConfig.sendRecvTimeout);
@@ -113,11 +118,12 @@ void Motor_Init() {
    //   RX            PA3(USART2_RX)
 
    Motor_Turnoff_Led(1); // 关掉电机1的LED
-   Motor_Turnoff_Led(2); // 关掉电机1的LED
+   Motor_Turnoff_Led(2); // 关掉电机2的LED
 
    Motor_RunN(1, 0); //电机1停止
    Motor_RunN(2, 0); //电机2停止
 
    MotorConfig.isGetSpeed      = 0; // 不从电机获取速度, 提高系统响应及性能
-   MotorConfig.sendRecvTimeout = 5;
+   MotorConfig.sendRecvTimeout = 10;
+   MotorConfig.speedLevel      = 3;
 }

@@ -51,25 +51,47 @@ int main(void) {
    Servo_Init();
 
    uint16_t rpm = 200;
+   uint16_t ms  = 3000;
    (void)rpm;
+   (void)ms;
+
+   Motor_RunN(1, 0);
+   Motor_RunS(2, 0);
+
    while (1) {
       // HAL_Delay(500);
       // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+#if 0
+      HAL_Delay(ms);
+      Servo_Turn_Right(30);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+
+      HAL_Delay(ms);
+      Servo_Turn_Left(30);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+
+      HAL_Delay(ms);
+      Servo_Turn_Left(30);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+
+      HAL_Delay(ms);
+      Servo_Turn_Right(30);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+#endif
 
 #if 0
-
       HAL_Delay(rpm);
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 2000 - 1); // 180
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 2080); // 135
       HAL_Delay(rpm);
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1500 - 1); // 90
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1580); // 90
       HAL_Delay(rpm);
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1000 - 1); // 0
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1280); // 45
       HAL_Delay(rpm);
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1500 - 1); // 90
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1580); // 90
 #endif
 
 #if 0

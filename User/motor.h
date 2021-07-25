@@ -3,9 +3,15 @@
 
 #include "stdint.h"
 
+enum ControlMode { Control_Mode_Auto, Control_Mode_Remote };
+enum Direction { Forward, Backward };
+
 struct MotorConfigulation {
-   uint8_t isGetSpeed;
-   uint8_t sendRecvTimeout;
+   uint8_t  controlMode;
+   uint8_t  direction;
+   uint16_t speedLevel;
+   uint8_t  isGetSpeed;
+   uint8_t  sendRecvTimeout;
 };
 
 extern struct MotorConfigulation MotorConfig;

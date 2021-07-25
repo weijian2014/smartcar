@@ -3,9 +3,11 @@
 
 #include "stdint.h"
 
-void Servo_TurnS(uint8_t angle);
+extern int8_t Current_Angle;
 
-void Servo_TurnR(uint8_t angle);
+void Servo_Turn_Right(uint8_t angle);
+
+void Servo_Turn_Left(uint8_t angle);
 
 void Servo_Init();
 
