@@ -48,6 +48,13 @@
          "group": "build",
          "dependsOn": "Cmake",
          "problemMatcher": []
-      }
+      },
+      {
+         "label": "Run App",
+         "type": "shell",
+         "command": "echo '==============================================' && cd app && flutter run",
+         "group": "build",
+         "problemMatcher": []
+      },
    ]
 }
