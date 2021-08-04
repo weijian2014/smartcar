@@ -22,8 +22,23 @@ class BottomNavigationWidget extends StatefulWidget {
   }
 }
 
-class BottomNavigationWidgetState extends State<BottomNavigationWidget> {
+class BottomNavigationWidgetState extends State<BottomNavigationWidget>
+    with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
+  late TabController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = new TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   List pages = <Widget>[
     new HomePageWidget(),
     new ControlPageWidget(),
@@ -32,9 +47,6 @@ class BottomNavigationWidgetState extends State<BottomNavigationWidget> {
 
   @override
   Widget build(BuildContext context) {
-    /*
-    返回一个脚手架，里面包含两个属性，一个是底部导航栏，另一个就是主体内容
-     */
     return new Scaffold(
       body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
