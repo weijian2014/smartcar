@@ -11,8 +11,6 @@ class ControlPageWidget extends StatefulWidget {
 }
 
 class ControlPageWidgetState extends State<ControlPageWidget> {
-  get child => null;
-
   List<double>? _accelerometerValues;
   List<double>? _userAccelerometerValues;
   List<double>? _gyroscopeValues;
@@ -468,6 +466,10 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
         }
       }
     }
+
+    if (angle == 0) {
+      angle = currentAngle;
+    }
     return angle;
   }
 
@@ -498,16 +500,16 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
       // 查找Map
       if (x > doubleZero && y > doubleZero) {
         angel = _findTangentMap(tangentMap1, t);
-        print("1--x=$x, y=$y, t=$t, angel=$angel");
+        // print("1--x=$x, y=$y, t=$t, angel=$angel");
       } else if (x < doubleZero && y > doubleZero) {
         angel = _findTangentMap(tangentMap2, t);
-        print("2--x=$x, y=$y, t=$t, angel=$angel");
+        // print("2--x=$x, y=$y, t=$t, angel=$angel");
       } else if (x < doubleZero && y < doubleZero) {
         angel = _findTangentMap(tangentMap3, t);
-        print("3--x=$x, y=$y, t=$t, angel=$angel");
+        // print("3--x=$x, y=$y, t=$t, angel=$angel");
       } else {
         angel = _findTangentMap(tangentMap4, t);
-        print("4--x=$x, y=$y, t=$t, angel=$angel");
+        // print("4--x=$x, y=$y, t=$t, angel=$angel");
       }
     }
 
