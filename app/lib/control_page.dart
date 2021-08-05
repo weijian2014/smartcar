@@ -11,9 +11,9 @@ class ControlPageWidget extends StatefulWidget {
 }
 
 class ControlPageWidgetState extends State<ControlPageWidget> {
-  List<double>? _accelerometerValues;
-  List<double>? _userAccelerometerValues;
-  List<double>? _gyroscopeValues;
+  List<double> _accelerometerValues = <double>[0.0, 0.0, 0.0];
+  List<double> _userAccelerometerValues = <double>[0.0, 0.0, 0.0];
+  List<double> _gyroscopeValues = <double>[0.0, 0.0, 0.0];
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
   @override
@@ -30,20 +30,20 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
     );
 
     _streamSubscriptions.add(
-      gyroscopeEvents.listen(
-        (GyroscopeEvent event) {
+      userAccelerometerEvents.listen(
+        (UserAccelerometerEvent event) {
           setState(() {
-            _gyroscopeValues = <double>[event.x, event.y, event.z];
+            _userAccelerometerValues = <double>[event.x, event.y, event.z];
           });
         },
       ),
     );
 
     _streamSubscriptions.add(
-      userAccelerometerEvents.listen(
-        (UserAccelerometerEvent event) {
+      gyroscopeEvents.listen(
+        (GyroscopeEvent event) {
           setState(() {
-            _userAccelerometerValues = <double>[event.x, event.y, event.z];
+            _gyroscopeValues = <double>[event.x, event.y, event.z];
           });
         },
       ),
@@ -520,16 +520,16 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
   @override
   Widget build(BuildContext context) {
     final accelerometer =
-        _accelerometerValues?.map((double v) => v.toStringAsFixed(1)).toList();
-
-    final gyroscope =
-        _gyroscopeValues?.map((double v) => v.toStringAsFixed(1)).toList();
+        _accelerometerValues.map((double v) => v.toStringAsFixed(1)).toList();
 
     final userAccelerometer = _userAccelerometerValues
-        ?.map((double v) => v.toStringAsFixed(1))
+        .map((double v) => v.toStringAsFixed(1))
         .toList();
 
-    final angel = _calcAngle(_accelerometerValues);
+    final gyroscope =
+        _gyroscopeValues.map((double v) => v.toStringAsFixed(1)).toList();
+
+    final int angel = _calcAngle(_accelerometerValues);
 
     return new Scaffold(
         appBar: new AppBar(
