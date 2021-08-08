@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'dart:convert';
 
 enum OperationType {
   opt_echo, // 用于测试, value = 0
@@ -36,6 +35,74 @@ abstract class Message {
   OperationType getOperationType() => this.optType;
 
   Uint8List encode();
+
+  String toString() {
+    return "Message: length=[$length], optType=[$optType]";
+  }
+}
+
+class EchoMessage extends Message {
+  String echo;
+
+  EchoMessage(this.echo) : super(echo.length + 2, OperationType.opt_echo);
+
+  @override
+  Uint8List encode() {
+    ByteData data = ByteData(this.length);
+    data.setUint8(0, length);
+    data.setUint8(1, optType.index);
+    int offset = 2;
+    for (var c in this.echo.codeUnits) {
+      data.setInt32(offset, c);
+      offset *= 4;
+    }
+    return Uint8List.sublistView(data);
+  }
+
+  @override
+  String toString() {
+    return "EchoMessage: length=[$length], optType=[$optType], echo=[$echo]";
+  }
+}
+
+class AckMessage extends Message {
+  int ack; // 1Byte
+
+  AckMessage(this.ack) : super(3, OperationType.opt_ack);
+
+  @override
+  Uint8List encode() {
+    ByteData data = ByteData(this.length);
+    data.setUint8(0, length);
+    data.setUint8(1, optType.index);
+    data.setUint8(2, this.ack);
+    return Uint8List.sublistView(data);
+  }
+
+  @override
+  String toString() {
+    return "AckMessage: length=[$length], optType=[$optType], ack=[$ack]";
+  }
+}
+
+class ConfigMessage extends Message {
+  int ack; // 1Byte
+
+  ConfigMessage(this.ack) : super(3, OperationType.opt_echo);
+
+  @override
+  Uint8List encode() {
+    ByteData data = ByteData(this.length);
+    data.setUint8(0, length);
+    data.setUint8(1, optType.index);
+    data.setUint8(2, this.ack);
+    return Uint8List.sublistView(data);
+  }
+
+  @override
+  String toString() {
+    return "ConfigMessage: length=[$length], optType=[$optType], ack=[$ack]";
+  }
 }
 
 class ControlMessage extends Message {
@@ -57,5 +124,38 @@ class ControlMessage extends Message {
     data.setUint16(2, angel);
     data.setUint8(4, level.index);
     return Uint8List.sublistView(data);
+  }
+
+  @override
+  String toString() {
+    return "ControlMessage: length=[$length], optType=[$optType], angel=[$angel], level=[$level]";
+  }
+}
+
+class CarStatusMessage extends Message {
+  int angel; // 2Byte
+
+  MotorRotatingLevel level; // 1Byte
+
+  CarStatusMessage(this.angel, this.level)
+      : super(5, OperationType.opt_car_status);
+
+  int getAngel() => this.angel;
+
+  MotorRotatingLevel getLevel() => this.level;
+
+  @override
+  Uint8List encode() {
+    ByteData data = ByteData(this.length);
+    data.setUint8(0, length);
+    data.setUint8(1, optType.index);
+    data.setUint16(2, angel);
+    data.setUint8(4, level.index);
+    return Uint8List.sublistView(data);
+  }
+
+  @override
+  String toString() {
+    return "CarStatusMessage: length=[$length], optType=[$optType], angel=[$angel], level=[$level]";
   }
 }
