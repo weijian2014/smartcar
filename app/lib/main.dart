@@ -2,14 +2,19 @@ import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'control_page.dart';
 import 'settings_page.dart';
+import 'tcp_server.dart';
 
-void main() => runApp(new MyApp());
+void main() async {
+  TcpServer server = new TcpServer();
+  server.start();
+  runApp(new MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: '底部导航演示',
+      title: 'SmartCar',
       home: new BottomNavigationWidget(),
     );
   }
