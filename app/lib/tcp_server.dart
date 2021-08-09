@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'msg.dart';
 
 class TcpServer {
-  final String host = "192.168.2.220";
+  final String host = "192.168.2.102";
   final int port = 8888;
 
   late ServerSocket _server;
@@ -45,10 +45,10 @@ class TcpServer {
             {
               print("Handle message error");
             }
-            break;
         }
       }
 
+      print("_recvData.len=${_recvData.length}, _recvData=$_recvData");
       await _client.flush();
       messages.clear();
     }
@@ -67,16 +67,17 @@ class TcpServer {
           Uint8List.fromList(_recvData).buffer.asByteData(0, recvDataBytes);
       int packetBytes = data.getUint8(0); // 一个包的长度, 1Byte
       if (packetBytes > recvDataBytes) {
-        print(
-            "Recv data error, recvDataBytes=$recvDataBytes, packetBytes=$packetBytes");
         _recvData.removeRange(orgRecvDataBytes, data.lengthInBytes);
+        print(
+            "Recv data error, recvDataBytes=$recvDataBytes, packetBytes=$packetBytes, _recvData.len=${_recvData.length}, _recvData=$_recvData");
         break;
       }
 
       int opt = data.getUint8(1);
       if (opt >= OperationType.opt_max.index) {
-        print("Recv data error, operationType=$opt");
         _recvData.removeRange(orgRecvDataBytes, data.lengthInBytes);
+        print(
+            "Recv data error, operationType=$opt, _recvData.len=${_recvData.length}, _recvData=$_recvData");
         break;
       }
 
