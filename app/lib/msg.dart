@@ -25,6 +25,42 @@ enum MotorRotatingLevel {
   rpm_max // value = 11
 }
 
+String toHex(Uint8List? encodeData) {
+  int length;
+  if (encodeData == null || (length = encodeData.length) <= 0) {
+    return "";
+  }
+  Uint8List cArr = new Uint8List(length << 1);
+  int i = 0;
+  for (int i2 = 0; i2 < length; i2++) {
+    int i3 = i + 1;
+    var cArr2 = [
+      '0',
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+      'F'
+    ];
+
+    var index = (encodeData[i2] >> 4) & 15;
+    cArr[i] = cArr2[index].codeUnitAt(0);
+    i = i3 + 1;
+    cArr[i3] = cArr2[encodeData[i2] & 15].codeUnitAt(0);
+  }
+  return new String.fromCharCodes(cArr);
+}
+
 abstract class Message {
   int length = 2; // 1Byte
   OperationType optType = OperationType.opt_echo; // 1Byte
@@ -48,20 +84,16 @@ class EchoMessage extends Message {
 
   @override
   Uint8List encode() {
-    ByteData data = ByteData(this.length);
-    data.setUint8(0, length);
-    data.setUint8(1, optType.index);
-    int offset = 2;
-    for (var c in this.echo.codeUnits) {
-      data.setInt32(offset, c);
-      offset *= 4;
-    }
-    return Uint8List.sublistView(data);
+    List<int> buf = List<int>.generate(0, (index) => 0);
+    buf.add(length);
+    buf.add(optType.index);
+    buf.addAll(echo.codeUnits);
+    return Uint8List.fromList(buf);
   }
 
   @override
   String toString() {
-    return "EchoMessage: length=[$length], optType=[$optType], echo=[$echo]";
+    return "EchoMessage: len=[$length], opt=[$optType], echo=[$echo], encode=${encode()}, hex=[${toHex(encode())}]";
   }
 }
 
@@ -76,12 +108,12 @@ class AckMessage extends Message {
     data.setUint8(0, length);
     data.setUint8(1, optType.index);
     data.setUint8(2, this.ack);
-    return Uint8List.sublistView(data);
+    return data.buffer.asUint8List();
   }
 
   @override
   String toString() {
-    return "AckMessage: length=[$length], optType=[$optType], ack=[$ack]";
+    return "AckMessage: length=[$length], optType=[$optType], ack=[$ack], encode=${encode()}, hex=[${toHex(encode())}]";
   }
 }
 
@@ -96,12 +128,12 @@ class ConfigMessage extends Message {
     data.setUint8(0, length);
     data.setUint8(1, optType.index);
     data.setUint8(2, this.ack);
-    return Uint8List.sublistView(data);
+    return data.buffer.asUint8List();
   }
 
   @override
   String toString() {
-    return "ConfigMessage: length=[$length], optType=[$optType], ack=[$ack]";
+    return "ConfigMessage: length=[$length], optType=[$optType], ack=[$ack], encode=${encode()}, hex=[${toHex(encode())}]";
   }
 }
 
@@ -123,12 +155,12 @@ class ControlMessage extends Message {
     data.setUint8(1, optType.index);
     data.setUint16(2, angel);
     data.setUint8(4, level.index);
-    return Uint8List.sublistView(data);
+    return data.buffer.asUint8List();
   }
 
   @override
   String toString() {
-    return "ControlMessage: length=[$length], optType=[$optType], angel=[$angel], level=[$level]";
+    return "ControlMessage: length=[$length], optType=[$optType], angel=[$angel], level=[$level], encode=${encode()}, hex=[${toHex(encode())}]";
   }
 }
 
@@ -151,11 +183,11 @@ class CarStatusMessage extends Message {
     data.setUint8(1, optType.index);
     data.setUint16(2, angel);
     data.setUint8(4, level.index);
-    return Uint8List.sublistView(data);
+    return data.buffer.asUint8List();
   }
 
   @override
   String toString() {
-    return "CarStatusMessage: length=[$length], optType=[$optType], angel=[$angel], level=[$level]";
+    return "CarStatusMessage: length=[$length], optType=[$optType], angel=[$angel], level=[$level], encode=${encode()}, hex=[${toHex(encode())}]";
   }
 }
