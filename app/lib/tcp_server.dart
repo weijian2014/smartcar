@@ -6,6 +6,8 @@ class TcpServer {
   final String host = "192.168.2.102";
   final int port = 8888;
 
+  bool isConnected = false;
+
   late ServerSocket _server;
 
   late Socket _client;
@@ -14,15 +16,34 @@ class TcpServer {
 
   final messages = <Message>[];
 
+  String toString() {
+    return "Server[${_server.address.host}:${_server.port}] <-> Client[${_client.remoteAddress.host}:${_client.remotePort}]";
+  }
+
+  String getServerInfo() {
+    return "Server[${_server.address.host}:${_server.port}]";
+  }
+
+  String getClientInfo() {
+    if (!isConnected) {
+      return "No client connected";
+    } else {
+      return "Client[${_client.remoteAddress.host}:${_client.remotePort}]";
+    }
+  }
+
   void start() async {
     _server = await ServerSocket.bind(host, port);
     await for (var c in _server) {
+      isConnected = true;
       _client = c;
       _recv();
     }
   }
 
   void _recv() async {
+    print(
+        "Client[${_client.remoteAddress.host}:${_client.remotePort}] connect to server[${_client.address.host}:${_client.port}]");
     await for (Uint8List data in _client) {
       print(
           "Server[${_client.address.host}:${_client.port}] recv from client[${_client.remoteAddress.host}:${_client.remotePort}], len=${data.lengthInBytes}, data=$data, hex=[${toHex(data)}]");
@@ -48,7 +69,8 @@ class TcpServer {
         }
       }
 
-      print("_recvData.len=${_recvData.length}, _recvData=$_recvData");
+      print(
+          "Message handle done, _recvData.len=${_recvData.length}, _recvData=$_recvData");
       await _client.flush();
       messages.clear();
     }
@@ -125,10 +147,10 @@ class TcpServer {
     try {
       _client.add(msg.encode());
       print(
-          "server[${_client.address.host}:${_client.port}] send to client[${_client.remoteAddress.host}:${_client.remotePort}], $msg");
+          "Server[${_client.address.host}:${_client.port}] send to client[${_client.remoteAddress.host}:${_client.remotePort}], $msg");
     } catch (e) {
       print(
-          "server[${_client.address.host}:${_client.port}] send to client[${_client.remoteAddress.host}:${_client.remotePort}], $msg");
+          "Server[${_client.address.host}:${_client.port}] send to client[${_client.remoteAddress.host}:${_client.remotePort}], $msg");
     }
   }
 }

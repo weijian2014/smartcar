@@ -4,8 +4,8 @@ import 'control_page.dart';
 import 'settings_page.dart';
 import 'tcp_server.dart';
 
+TcpServer server = new TcpServer();
 void main() async {
-  TcpServer server = new TcpServer();
   server.start();
   runApp(new MyApp());
 }
