@@ -4,9 +4,10 @@ import 'control_page.dart';
 import 'settings_page.dart';
 import 'tcp_server.dart';
 
-TcpServer server = new TcpServer();
 void main() async {
-  server.start();
+  final String host = "192.168.2.102";
+  final int port = 8888;
+  server.start(host, port);
   runApp(new MyApp());
 }
 

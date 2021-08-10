@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'my_event_bus.dart';
 
 class ControlPageWidget extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
   List<double> _accelerometerValues = <double>[0.0, 0.0, 0.0];
   List<double> _userAccelerometerValues = <double>[0.0, 0.0, 0.0];
   List<double> _gyroscopeValues = <double>[0.0, 0.0, 0.0];
+  String _tcpServerMsg = "未启动";
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
   @override
@@ -48,6 +50,12 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
         },
       ),
     );
+
+    _streamSubscriptions.add(bus.listen<TcpServerEvent>((TcpServerEvent event) {
+      setState(() {
+        _tcpServerMsg = event.msg;
+      });
+    }));
   }
 
   @override
@@ -580,6 +588,15 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text('角度: $angel'),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text('服务器状态: $_tcpServerMsg'),
                   ],
                 ),
               ),

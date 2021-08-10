@@ -1,59 +1,55 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'msg.dart';
+import 'my_event_bus.dart';
 
-class TcpServer {
-  final String host = "192.168.2.102";
-  final int port = 8888;
+class _TcpServer {
+  //私有构造函数
+  _TcpServer._internal();
+
+  //保存单例
+  static _TcpServer _singleton = new _TcpServer._internal();
+
+  //工厂构造函数
+  factory _TcpServer() => _singleton;
 
   bool isConnected = false;
 
   late ServerSocket _server;
 
-  late Socket _client;
+  List<Socket> _clients = [];
 
   List<int> _recvData = new List<int>.generate(0, (int index) => 0);
 
   final messages = <Message>[];
 
-  String toString() {
-    return "Server[${_server.address.host}:${_server.port}] <-> Client[${_client.remoteAddress.host}:${_client.remotePort}]";
-  }
-
-  String getServerInfo() {
-    return "Server[${_server.address.host}:${_server.port}]";
-  }
-
-  String getClientInfo() {
-    if (!isConnected) {
-      return "No client connected";
-    } else {
-      return "Client[${_client.remoteAddress.host}:${_client.remotePort}]";
-    }
-  }
-
-  void start() async {
+  void start(String host, int port) async {
     _server = await ServerSocket.bind(host, port);
-    await for (var c in _server) {
+    bus.fire(new TcpServerEvent(
+        "Server[${_server.address.host}:${_server.port}] startup"));
+    await for (var client in _server) {
       isConnected = true;
-      _client = c;
-      _recv();
+      _clients.add(client);
+      bus.fire(new TcpServerEvent(
+          "Client[${client.remoteAddress.host}:${client.remotePort}] connect to server[${_server.address.host}:${_server.port}]"));
+      _recv(client);
     }
   }
 
-  void _recv() async {
+  void _recv(Socket client) async {
     print(
-        "Client[${_client.remoteAddress.host}:${_client.remotePort}] connect to server[${_client.address.host}:${_client.port}]");
-    await for (Uint8List data in _client) {
+        "Client[${client.remoteAddress.host}:${client.remotePort}] connect to server[${_server.address.host}:${_server.port}]");
+    await for (Uint8List data in client) {
       print(
-          "Server[${_client.address.host}:${_client.port}] recv from client[${_client.remoteAddress.host}:${_client.remotePort}], len=${data.lengthInBytes}, data=$data, hex=[${toHex(data)}]");
+          "Server[${_server.address.host}:${_server.port}] recv from client[${client.remoteAddress.host}:${client.remotePort}], len=${data.lengthInBytes}, data=$data, hex=[${toHex(data)}]");
 
       _parseData(data);
-      for (var m in messages) {
-        switch (m.optType) {
+
+      for (var msg in messages) {
+        switch (msg.optType) {
           case OperationType.opt_echo:
             {
-              send(m);
+              send(client, msg);
             }
             break;
           case OperationType.opt_ack:
@@ -71,7 +67,7 @@ class TcpServer {
 
       print(
           "Message handle done, _recvData.len=${_recvData.length}, _recvData=$_recvData");
-      await _client.flush();
+      await client.flush();
       messages.clear();
     }
   }
@@ -143,14 +139,16 @@ class TcpServer {
     }
   }
 
-  void send(Message msg) async {
+  void send(Socket client, Message msg) async {
     try {
-      _client.add(msg.encode());
+      client.add(msg.encode());
       print(
-          "Server[${_client.address.host}:${_client.port}] send to client[${_client.remoteAddress.host}:${_client.remotePort}], $msg");
+          "Server[${_server.address.host}:${_server.port}] send to client[${client.remoteAddress.host}:${client.remotePort}], $msg");
     } catch (e) {
       print(
-          "Server[${_client.address.host}:${_client.port}] send to client[${_client.remoteAddress.host}:${_client.remotePort}], $msg");
+          "Server[${_server.address.host}:${_server.port}] send to client[${client.remoteAddress.host}:${client.remotePort}], $msg");
     }
   }
 }
+
+_TcpServer server = new _TcpServer();
