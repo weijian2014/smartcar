@@ -5,7 +5,7 @@ import 'settings_page.dart';
 import 'tcp_server.dart';
 
 void main() async {
-  final String host = "192.168.2.102";
+  final String host = "0.0.0.0";
   final int port = 8888;
   server.start(host, port);
   runApp(new MyApp());

@@ -4,6 +4,12 @@ import 'msg.dart';
 import 'my_event_bus.dart';
 
 class _TcpServer {
+  bool isStarted = false;
+
+  late ServerSocket _server;
+
+  List<Socket> _clients = [];
+
   //私有构造函数
   _TcpServer._internal();
 
@@ -13,22 +19,23 @@ class _TcpServer {
   //工厂构造函数
   factory _TcpServer() => _singleton;
 
-  bool isConnected = false;
-
-  late ServerSocket _server;
-
-  List<Socket> _clients = [];
-
   List<int> _recvData = new List<int>.generate(0, (int index) => 0);
 
   final messages = <Message>[];
 
   void start(String host, int port) async {
+    if (isStarted) {
+      print(
+          "The server[${_server.address.host}:${_server.port}] already started");
+      return;
+    }
+
     _server = await ServerSocket.bind(host, port);
+    isStarted = true;
     bus.fire(new TcpServerEvent(
         "Server[${_server.address.host}:${_server.port}] startup"));
+
     await for (var client in _server) {
-      isConnected = true;
       _clients.add(client);
       bus.fire(new TcpServerEvent(
           "Client[${client.remoteAddress.host}:${client.remotePort}] connect to server[${_server.address.host}:${_server.port}]"));
@@ -147,6 +154,26 @@ class _TcpServer {
     } catch (e) {
       print(
           "Server[${_server.address.host}:${_server.port}] send to client[${client.remoteAddress.host}:${client.remotePort}], $msg");
+    }
+  }
+
+  String getServerInfo() {
+    if (!isStarted) {
+      return "未启动";
+    } else {
+      return "[${_server.address.host}:${_server.port}]已启动";
+    }
+  }
+
+  String getClientInfo() {
+    if (_clients.isEmpty) {
+      return "客户端未连接";
+    } else {
+      String info = "";
+      for (var client in _clients) {
+        info += "[${client.remoteAddress.host}:${client.remotePort}]已连接";
+      }
+      return info;
     }
   }
 }
