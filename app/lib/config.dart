@@ -16,10 +16,11 @@ class Config {
   //工厂构造函数
   factory Config() => _singleton;
 
-  void init() async {
-    var r = await rootBundle.loadString('assets/config/config.json');
-    _configulation = _Configulation.fromJson(json.decode(r));
+  Future<bool> init() async {
+    var conf = await rootBundle.loadString('assets/config/config.json');
+    _configulation = new _Configulation.fromJson(json.decode(conf));
     _isInited = true;
+    return _isInited;
   }
 
   void save() async {
@@ -28,18 +29,22 @@ class Config {
   }
 
   int getTcpServerPort() {
+    assert(_isInited);
     return _configulation.tcpServerPort;
   }
 
   void setTcpServerPort(int port) {
+    assert(_isInited);
     _configulation.tcpServerPort = port;
   }
 
   int getRemoteControlMotroRotatingLevel() {
+    assert(_isInited);
     return _configulation.remoteControl.motroRotatingLevel;
   }
 
   void setRemoteControlMotroRotatingLevel(int level) {
+    assert(_isInited);
     _configulation.remoteControl.motroRotatingLevel = level;
   }
 }
@@ -48,14 +53,14 @@ Config config = new Config();
 
 class _Configulation {
   int tcpServerPort = -1;
-  late _RemoteControl remoteControl;
+  _RemoteControl remoteControl;
 
   _Configulation({required this.tcpServerPort, required this.remoteControl});
 
   factory _Configulation.fromJson(Map<String, dynamic> json) {
     return _Configulation(
         tcpServerPort: json['tcp_server_port'],
-        remoteControl: _RemoteControl.fromJson(json['remote_control']));
+        remoteControl: new _RemoteControl.fromJson(json['remote_control']));
   }
 }
 

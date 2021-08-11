@@ -3,16 +3,16 @@ import 'home_page.dart';
 import 'control_page.dart';
 import 'settings_page.dart';
 import 'tcp_server.dart';
-// import 'config.dart';
+import 'config.dart';
 
 void main() async {
-  // Config.init();
-  // print(
-  //     'level=${config.getRemoteControlMotroRotatingLevel()}, port=${config.getTcpServerPort()}');
-  final String host = "0.0.0.0";
-  final int port = 8888;
-  server.start(host, port);
-  runApp(new MyApp());
+  // 此处要等待Flutter初始化完成
+  WidgetsFlutterBinding.ensureInitialized();
+  config.init().then((ok) {
+    // 此处要等待加载配置完成
+    server.start("0.0.0.0", config.getTcpServerPort());
+    runApp(new MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
