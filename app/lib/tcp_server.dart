@@ -8,7 +8,9 @@ class _TcpServer {
 
   late ServerSocket _server;
 
-  List<Socket> _clients = [];
+  Map<Socket, List<int>> _clients = new Map();
+
+  final messages = <Message>[];
 
   //私有构造函数
   _TcpServer._internal();
@@ -19,10 +21,6 @@ class _TcpServer {
   //工厂构造函数
   factory _TcpServer() => _singleton;
 
-  List<int> _recvData = new List<int>.generate(0, (int index) => 0);
-
-  final messages = <Message>[];
-
   void start(String host, int port) async {
     if (isStarted) {
       print(
@@ -30,119 +28,144 @@ class _TcpServer {
       return;
     }
 
-    _server = await ServerSocket.bind(host, port);
-    isStarted = true;
-    bus.fire(new TcpServerEvent(
-        "Server[${_server.address.host}:${_server.port}] startup"));
+    try {
+      // 创建TCP服务器socket
+      await ServerSocket.bind(host, port).then((server) async {
+        _server = server;
+        isStarted = true;
+        bus.fire(new TcpServerEvent(
+            "Server[${_server.address.host}:${_server.port}] startup"));
+      });
 
-    await for (var client in _server) {
-      _clients.add(client);
-      bus.fire(new TcpServerEvent(
-          "Client[${client.remoteAddress.host}:${client.remotePort}] connect to server[${_server.address.host}:${_server.port}]"));
-      _recv(client);
-    }
-  }
+      // 监听TCP服务器socket，等待accept
+      await _server.listen((Socket client) async {
+        _clients[client] ??= List.generate(0, (index) => 0);
+        bus.fire(new TcpServerEvent(
+            "Client[${client.remoteAddress.host}:${client.remotePort}] connect to server[${_server.address.host}:${_server.port}]"));
 
-  void _recv(Socket client) async {
-    print(
-        "Client[${client.remoteAddress.host}:${client.remotePort}] connect to server[${_server.address.host}:${_server.port}]");
-    await for (Uint8List data in client) {
-      print(
-          "Server[${_server.address.host}:${_server.port}] recv from client[${client.remoteAddress.host}:${client.remotePort}], len=${data.lengthInBytes}, data=$data, hex=[${toHex(data)}]");
+        try {
+          // 监听客户端socket
+          await client.listen((Uint8List data) async {
+            // 接收到客户端发来的数据data
+            var recvData = _clients[client];
+            int orgRecvDataBytes = recvData!.length;
+            recvData.addAll(data);
 
-      _parseData(data);
+            while (true) {
+              int recvDataBytes = recvData.length;
+              if (recvDataBytes <= 2) {
+                break;
+              }
 
-      for (var msg in messages) {
-        switch (msg.optType) {
-          case OperationType.opt_echo:
-            {
-              send(client, msg);
+              ByteData bd = Uint8List.fromList(recvData)
+                  .buffer
+                  .asByteData(0, recvDataBytes);
+
+              // 一个包的长度, 1Byte
+              int packetBytes = bd.getUint8(0);
+              if (packetBytes > recvDataBytes) {
+                recvData.removeRange(orgRecvDataBytes, data.lengthInBytes);
+                print(
+                    "Client[${client.remoteAddress.host}:${client.remotePort}] receive data error, ignore received data");
+                break;
+              }
+
+              int opt = bd.getUint8(1);
+              if (opt >= OperationType.opt_max.index ||
+                  opt < OperationType.opt_echo.index) {
+                recvData.removeRange(orgRecvDataBytes, data.lengthInBytes);
+                print(
+                    "Client[${client.remoteAddress.host}:${client.remotePort}] receive data error, operationType=$opt, ignore received data");
+                break;
+              }
+
+              // 包的操作类型, 1Byte
+              OperationType optType = OperationType.values[opt];
+
+              switch (optType) {
+                case OperationType.opt_echo:
+                  {
+                    String echo = String.fromCharCodes(
+                        Uint8List.sublistView(data, 2, packetBytes));
+                    Message msg = new EchoMessage(echo);
+                    messages.add(msg);
+                    recvData.removeRange(0, packetBytes);
+                    // print(msg.toString());
+                  }
+                  break;
+                case OperationType.opt_ack:
+                  {
+                    int ack = bd.getUint8(2);
+                    Message msg = new AckMessage(ack);
+                    messages.add(msg);
+                    recvData.removeRange(0, packetBytes);
+                    print(msg.toString());
+                  }
+                  break;
+                case OperationType.opt_car_status:
+                  {
+                    int angel = bd.getUint16(2);
+                    MotorRotatingLevel level =
+                        bd.getUint8(4) as MotorRotatingLevel;
+                    Message msg = new CarStatusMessage(angel, level);
+                    messages.add(msg);
+                    recvData.removeRange(0, packetBytes);
+                    print(msg.toString());
+                  }
+                  break;
+                default:
+                  {
+                    print(
+                        "Client[${client.remoteAddress.host}:${client.remotePort}] parse data error");
+                  }
+              }
             }
-            break;
-          case OperationType.opt_ack:
-            {}
-            break;
-          case OperationType.opt_car_status:
-            {}
-            break;
-          default:
-            {
-              print("Handle message error");
+
+            for (var msg in messages) {
+              switch (msg.optType) {
+                case OperationType.opt_echo:
+                  {
+                    send(client, msg);
+                  }
+                  break;
+                case OperationType.opt_ack:
+                  {}
+                  break;
+                case OperationType.opt_car_status:
+                  {}
+                  break;
+                default:
+                  {
+                    print(
+                        "Client[${client.remoteAddress.host}:${client.remotePort}] handle message error");
+                  }
+              }
             }
+
+            print(
+                "Client[${client.remoteAddress.host}:${client.remotePort}] message handle done, _recvData.len=${recvData.length}, recvData=$recvData");
+            await client.flush();
+            messages.clear();
+          }, onError: (error) {
+            // 监听客户端socket错误
+            print(
+                "Client[${client.remoteAddress.host}:${client.remotePort}] receive data error error, $error");
+            client.close();
+          }, onDone: null, cancelOnError: false);
+        } catch (e) {
+          print(
+              "Client[${client.remoteAddress.host}:${client.remotePort}] receive data error，$e");
+          client.close();
         }
-      }
-
-      print(
-          "Message handle done, _recvData.len=${_recvData.length}, _recvData=$_recvData");
-      await client.flush();
-      messages.clear();
-    }
-  }
-
-  void _parseData(Uint8List data) async {
-    int orgRecvDataBytes = _recvData.length;
-    _recvData.addAll(data);
-    while (true) {
-      int recvDataBytes = _recvData.length;
-      if (recvDataBytes <= 2) {
-        break;
-      }
-
-      ByteData data =
-          Uint8List.fromList(_recvData).buffer.asByteData(0, recvDataBytes);
-      int packetBytes = data.getUint8(0); // 一个包的长度, 1Byte
-      if (packetBytes > recvDataBytes) {
-        _recvData.removeRange(orgRecvDataBytes, data.lengthInBytes);
+      }, onError: (error) {
+        // TCP服务器socket监听错误
         print(
-            "Recv data error, recvDataBytes=$recvDataBytes, packetBytes=$packetBytes, _recvData.len=${_recvData.length}, _recvData=$_recvData");
-        break;
-      }
-
-      int opt = data.getUint8(1);
-      if (opt >= OperationType.opt_max.index) {
-        _recvData.removeRange(orgRecvDataBytes, data.lengthInBytes);
-        print(
-            "Recv data error, operationType=$opt, _recvData.len=${_recvData.length}, _recvData=$_recvData");
-        break;
-      }
-
-      OperationType optType = OperationType.values[opt]; // 包的操作类型, 1Byte
-      switch (optType) {
-        case OperationType.opt_echo:
-          {
-            String echo = String.fromCharCodes(
-                Uint8List.sublistView(data, 2, packetBytes));
-            Message msg = new EchoMessage(echo);
-            messages.add(msg);
-            _recvData.removeRange(0, packetBytes);
-            // print(msg.toString());
-          }
-          break;
-        case OperationType.opt_ack:
-          {
-            int ack = data.getUint8(2);
-            Message msg = new AckMessage(ack);
-            messages.add(msg);
-            _recvData.removeRange(0, packetBytes);
-            print(msg.toString());
-            print(msg.toString());
-          }
-          break;
-        case OperationType.opt_car_status:
-          {
-            int angel = data.getUint16(2);
-            MotorRotatingLevel level = data.getUint8(4) as MotorRotatingLevel;
-            Message msg = new CarStatusMessage(angel, level);
-            messages.add(msg);
-            _recvData.removeRange(0, packetBytes);
-            print(msg.toString());
-          }
-          break;
-        default:
-          {
-            print("Parse data error");
-          }
-      }
+            "Server[${_server.address.host}:${_server.port}] accept error, $error");
+        _server.close();
+      }, onDone: null, cancelOnError: false);
+    } catch (e) {
+      print("连接socket出现异常，e=${e.toString()}");
+      _server.close();
     }
   }
 
@@ -159,19 +182,20 @@ class _TcpServer {
 
   String getServerInfo() {
     if (!isStarted) {
-      return "未启动";
+      return "The server has not started";
     } else {
-      return "[${_server.address.host}:${_server.port}]已启动";
+      return "The [${_server.address.host}:${_server.port}] has been started";
     }
   }
 
   String getClientInfo() {
     if (_clients.isEmpty) {
-      return "客户端未连接";
+      return "No client connected to server yet";
     } else {
       String info = "";
-      for (var client in _clients) {
-        info += "[${client.remoteAddress.host}:${client.remotePort}]已连接";
+      for (var client in _clients.entries) {
+        info +=
+            "[${client.key.remoteAddress.host}:${client.key.remotePort}] connected to server";
       }
       return info;
     }
