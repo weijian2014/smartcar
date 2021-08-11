@@ -5,6 +5,12 @@
    "version": "0.2.0",
    "configurations": [
       {
+         "name": "Flutter",
+         "type": "dart",
+         "request": "launch",
+         "program": "app/lib/main.dart"
+      },
+      {
          "cwd": "${workspaceRoot}",
          "executable": "build_dir/smartcar.elf",
          "name": "smartcar",

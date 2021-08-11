@@ -9,7 +9,7 @@ enum OperationType {
   opt_max, // value = 5
 }
 
-// 马达转转速级别
+// 马达转速级别
 enum MotorRotatingLevel {
   rpm_stop, // value = 0
   rpm_level_1, // 200rpm

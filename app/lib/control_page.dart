@@ -552,7 +552,7 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Image.asset(
-                "images/target.png",
+                "assets/images/target.png",
                 fit: BoxFit.cover,
                 // width: 300,
               ),
