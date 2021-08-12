@@ -34,7 +34,7 @@ class BottomNavigationWidget extends StatefulWidget {
 
 class BottomNavigationWidgetState extends State<BottomNavigationWidget>
     with SingleTickerProviderStateMixin {
-  int _currentIndex = 0;
+  int _currentIndex = 2;
   late TabController _controller;
 
   @override
