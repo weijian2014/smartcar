@@ -25,25 +25,25 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
 
   BoxDecoration _setBoxDecoration() {
     return new BoxDecoration(
-        border: Border.all(
-            color: Color.fromRGBO(200, 220, 220, 220),
-            width: 3,
-            style: BorderStyle.solid),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 0),
-            color: Color.fromRGBO(200, 220, 220, 220),
-            blurRadius: 5,
-            spreadRadius: 0,
-          )
-        ]);
+      border: Border.all(
+          color: Color.fromRGBO(200, 220, 220, 220),
+          width: 3,
+          style: BorderStyle.solid),
+      borderRadius: BorderRadius.circular(20),
+      // boxShadow: [
+      //   BoxShadow(
+      //     offset: Offset(0, 0),
+      //     color: Color.fromRGBO(200, 220, 220, 220),
+      //     blurRadius: 5,
+      //     spreadRadius: 0,
+      //   )]
+    );
   }
 
   String _showRotatingLevel(double value) {
     int v = value.ceil();
     if (v == 0) {
-      return "自动计算";
+      return "0(自动计算)";
     } else {
       return "$v(${v * 200}转每分钟)";
     }
@@ -87,7 +87,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                             ),
                             Expanded(
                               flex: 0,
-                              child: Text('${_tcpPort.round()}'),
+                              child: Text('${_tcpPort.round()}   '),
                             ),
                           ],
                         ),
@@ -143,8 +143,8 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                             ),
                             Expanded(
                               flex: 0,
-                              child:
-                                  Text('${_showRotatingLevel(_rotatingLevel)}'),
+                              child: Text(
+                                  '${_showRotatingLevel(_rotatingLevel)}   '),
                             ),
                           ],
                         ),
