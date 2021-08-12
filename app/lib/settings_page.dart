@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class SettingsPageWidget extends StatefulWidget {
   @override
@@ -41,16 +40,23 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
         ]);
   }
 
-  String _showRotatingLevel(double value) =>
-      (value == 0) ? "自动计算" : "$value(${value * 200}转每分钟)";
+  String _showRotatingLevel(double value) {
+    int v = value.ceil();
+    if (v == 0) {
+      return "自动计算";
+    } else {
+      return "$v(${v * 200}转每分钟)";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: new AppBar(
-            title: new Text("设置"),
-            centerTitle: true,
-            backgroundColor: Color(0xFF363644)),
+          title: new Text("设置"),
+          centerTitle: true,
+          // backgroundColor: Color(0xFF363644)
+        ),
         body: ListView(
           children: <Widget>[
             Container(
@@ -71,14 +77,22 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                   ),
                   Padding(
                     padding: EdgeInsets.fromLTRB(20.0, 5.0, 0.0, 10),
-                    child: Row(
+                    child: Column(
                       children: [
-                        Expanded(
-                          flex: 2,
-                          child: Text('服务器端口'),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 6,
+                              child: Text('服务器端口'),
+                            ),
+                            Expanded(
+                              flex: 0,
+                              child: Text('${_tcpPort.round()}'),
+                            ),
+                          ],
                         ),
-                        Expanded(
-                          flex: 6,
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
                           child: Slider(
                             value: _tcpPort,
                             onChanged: _tcpPorChanged,
@@ -86,19 +100,14 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                             onChangeEnd: (data) {
                               // todo save to config.json
                             },
-                            min: 1025.0,
-                            max: 65535.0,
-                            divisions: 64510,
+                            min: 8866.0,
+                            max: 8888.0,
                             activeColor: Colors.blue,
                             inactiveColor: Colors.grey,
                             semanticFormatterCallback: (double newValue) {
                               return '${newValue.round()} dollars}';
                             },
                           ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text('${_tcpPort}'),
                         ),
                       ],
                     ),
@@ -112,7 +121,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+                    padding: const EdgeInsets.fromLTRB(10.0, 5.0, 0.0, 0.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -123,15 +132,24 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0),
-                    child: Row(
+                    padding: EdgeInsets.fromLTRB(20.0, 5.0, 0.0, 10),
+                    child: Column(
                       children: [
-                        Expanded(
-                          flex: 2,
-                          child: Text('马达转速等级'),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 6,
+                              child: Text('马达转速等级'),
+                            ),
+                            Expanded(
+                              flex: 0,
+                              child:
+                                  Text('${_showRotatingLevel(_rotatingLevel)}'),
+                            ),
+                          ],
                         ),
-                        Expanded(
-                          flex: 6,
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
                           child: Slider(
                             value: _rotatingLevel,
                             onChanged: _rotatingLevelChanged,
@@ -141,17 +159,12 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                             },
                             min: 0.0,
                             max: 10.0,
-                            divisions: 10,
                             activeColor: Colors.blue,
                             inactiveColor: Colors.grey,
                             semanticFormatterCallback: (double newValue) {
                               return '${newValue.round()} dollars}';
                             },
                           ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text('${_showRotatingLevel(_rotatingLevel)}'),
                         ),
                       ],
                     ),
