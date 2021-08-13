@@ -28,6 +28,16 @@ class Config {
     await file.writeAsString(json.encode(_configulation));
   }
 
+  int getThemeColorIndex() {
+    assert(_isInited);
+    return _configulation.themeColorIndex;
+  }
+
+  void setThemeColorIndex(int index) {
+    assert(_isInited);
+    _configulation.themeColorIndex = index;
+  }
+
   bool getVibration() {
     assert(_isInited);
     return _configulation.isVibration;
@@ -72,19 +82,22 @@ class Config {
 Config config = new Config();
 
 class _Configulation {
+  int themeColorIndex = 7;
   bool isVibration = false;
   bool isSoundEffect = false;
   int tcpServerPort = -1;
   _RemoteControl remoteControl;
 
   _Configulation(
-      {required this.isVibration,
+      {required this.themeColorIndex,
+      required this.isVibration,
       required this.isSoundEffect,
       required this.tcpServerPort,
       required this.remoteControl});
 
   factory _Configulation.fromJson(Map<String, dynamic> json) {
     return _Configulation(
+        themeColorIndex: json['theme_index'],
         isVibration: json['vibration'],
         isSoundEffect: json['sound_effect'],
         tcpServerPort: json['tcp_server_port'],
