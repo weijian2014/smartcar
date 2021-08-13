@@ -28,6 +28,26 @@ class Config {
     await file.writeAsString(json.encode(_configulation));
   }
 
+  bool getVibration() {
+    assert(_isInited);
+    return _configulation.isVibration;
+  }
+
+  void setVibration(bool isVibration) {
+    assert(_isInited);
+    _configulation.isVibration = isVibration;
+  }
+
+  bool getSoundEffect() {
+    assert(_isInited);
+    return _configulation.isSoundEffect;
+  }
+
+  void setSoundEffect(bool isSoundEffect) {
+    assert(_isInited);
+    _configulation.isSoundEffect = isSoundEffect;
+  }
+
   int getTcpServerPort() {
     assert(_isInited);
     return _configulation.tcpServerPort;
@@ -52,13 +72,21 @@ class Config {
 Config config = new Config();
 
 class _Configulation {
+  bool isVibration = false;
+  bool isSoundEffect = false;
   int tcpServerPort = -1;
   _RemoteControl remoteControl;
 
-  _Configulation({required this.tcpServerPort, required this.remoteControl});
+  _Configulation(
+      {required this.isVibration,
+      required this.isSoundEffect,
+      required this.tcpServerPort,
+      required this.remoteControl});
 
   factory _Configulation.fromJson(Map<String, dynamic> json) {
     return _Configulation(
+        isVibration: json['vibration'],
+        isSoundEffect: json['sound_effect'],
         tcpServerPort: json['tcp_server_port'],
         remoteControl: new _RemoteControl.fromJson(json['remote_control']));
   }

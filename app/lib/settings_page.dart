@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'config.dart';
 
 class SettingsPageWidget extends StatefulWidget {
   @override
@@ -8,20 +9,10 @@ class SettingsPageWidget extends StatefulWidget {
 }
 
 class SettingsPageWidgetState extends State<SettingsPageWidget> {
+  bool _isVibration = false;
+  bool _isSoundEffect = false;
+  double _tcpServerPort = 8888.0;
   double _rotatingLevel = 0.0;
-  double _tcpPort = 8888.0;
-
-  void _rotatingLevelChanged(value) {
-    setState(() {
-      _rotatingLevel = value;
-    });
-  }
-
-  void _tcpPorChanged(value) {
-    setState(() {
-      _tcpPort = value;
-    });
-  }
 
   BoxDecoration _setBoxDecoration() {
     return new BoxDecoration(
@@ -47,6 +38,15 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
     } else {
       return "$v(${v * 200}转每分钟)";
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _isVibration = config.getVibration();
+    _isSoundEffect = config.getSoundEffect();
+    _tcpServerPort = config.getTcpServerPort().toDouble();
+    _rotatingLevel = config.getRemoteControlMotroRotatingLevel().toDouble();
   }
 
   @override
@@ -76,7 +76,53 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.fromLTRB(20.0, 5.0, 0.0, 10),
+                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 6,
+                            child: Text('振动'),
+                          ),
+                          Expanded(
+                            flex: 0,
+                            child: Switch(
+                              value: _isVibration,
+                              // activeColor: Colors.red,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isVibration = value;
+                                  config.setVibration(_isVibration);
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      )),
+                  Padding(
+                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 6,
+                            child: Text('音效'),
+                          ),
+                          Expanded(
+                            flex: 0,
+                            child: Switch(
+                              value: _isSoundEffect,
+                              // activeColor: Colors.red,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isSoundEffect = value;
+                                  config.setSoundEffect(_isSoundEffect);
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      )),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(20.0, 5.0, 0.0, 0.0),
                     child: Column(
                       children: [
                         Row(
@@ -87,18 +133,22 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                             ),
                             Expanded(
                               flex: 0,
-                              child: Text('${_tcpPort.round()}   '),
+                              child: Text('${_tcpServerPort.round()}   '),
                             ),
                           ],
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
                           child: Slider(
-                            value: _tcpPort,
-                            onChanged: _tcpPorChanged,
+                            value: _tcpServerPort,
+                            onChanged: (value) {
+                              setState(() {
+                                _tcpServerPort = value;
+                              });
+                            },
                             onChangeStart: null,
                             onChangeEnd: (data) {
-                              // todo save to config.json
+                              config.setTcpServerPort(_tcpServerPort.ceil());
                             },
                             min: 8866.0,
                             max: 8888.0,
@@ -132,7 +182,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.fromLTRB(20.0, 5.0, 0.0, 10),
+                    padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
                     child: Column(
                       children: [
                         Row(
@@ -152,17 +202,22 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                           padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
                           child: Slider(
                             value: _rotatingLevel,
-                            onChanged: _rotatingLevelChanged,
+                            onChanged: (value) {
+                              setState(() {
+                                _rotatingLevel = value;
+                              });
+                            },
                             onChangeStart: null,
                             onChangeEnd: (data) {
-                              // todo save to config.json
+                              config.setRemoteControlMotroRotatingLevel(
+                                  _rotatingLevel.ceil());
                             },
                             min: 0.0,
                             max: 10.0,
                             activeColor: Colors.blue,
                             inactiveColor: Colors.grey,
                             semanticFormatterCallback: (double newValue) {
-                              return '${newValue.round()} dollars}';
+                              return '${newValue.ceil()} dollars}';
                             },
                           ),
                         ),

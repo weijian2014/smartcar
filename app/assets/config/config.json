@@ -1,4 +1,6 @@
 {
+   "vibration": false,
+   "sound_effect": false,
    "tcp_server_port": 8888,
    "remote_control": {
       "motro_rotating_level": 0
