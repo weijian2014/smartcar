@@ -28,52 +28,52 @@ class Config {
     await file.writeAsString(json.encode(_configulation));
   }
 
-  int getThemeColorIndex() {
+  int get themeIndex {
     assert(_isInited);
-    return _configulation.themeColorIndex;
+    return _configulation.themeIndex;
   }
 
-  void setThemeColorIndex(int index) {
+  void set themeIndex(int index) {
     assert(_isInited);
-    _configulation.themeColorIndex = index;
+    _configulation.themeIndex = index;
   }
 
-  bool getVibration() {
+  bool get vibration {
     assert(_isInited);
     return _configulation.isVibration;
   }
 
-  void setVibration(bool isVibration) {
+  void set vibration(bool isVibration) {
     assert(_isInited);
     _configulation.isVibration = isVibration;
   }
 
-  bool getSoundEffect() {
+  bool get soundEffect {
     assert(_isInited);
     return _configulation.isSoundEffect;
   }
 
-  void setSoundEffect(bool isSoundEffect) {
+  void set soundEffect(bool isSoundEffect) {
     assert(_isInited);
     _configulation.isSoundEffect = isSoundEffect;
   }
 
-  int getTcpServerPort() {
+  int get tcpServerPort {
     assert(_isInited);
     return _configulation.tcpServerPort;
   }
 
-  void setTcpServerPort(int port) {
+  void set tcpServerPort(int port) {
     assert(_isInited);
     _configulation.tcpServerPort = port;
   }
 
-  int getRemoteControlMotroRotatingLevel() {
+  int get remoteControlMotroRotatingLevel {
     assert(_isInited);
     return _configulation.remoteControl.motroRotatingLevel;
   }
 
-  void setRemoteControlMotroRotatingLevel(int level) {
+  void set remoteControlMotroRotatingLevel(int level) {
     assert(_isInited);
     _configulation.remoteControl.motroRotatingLevel = level;
   }
@@ -82,14 +82,14 @@ class Config {
 Config config = new Config();
 
 class _Configulation {
-  int themeColorIndex = 7;
+  int themeIndex = 7;
   bool isVibration = false;
   bool isSoundEffect = false;
   int tcpServerPort = -1;
   _RemoteControl remoteControl;
 
   _Configulation(
-      {required this.themeColorIndex,
+      {required this.themeIndex,
       required this.isVibration,
       required this.isSoundEffect,
       required this.tcpServerPort,
@@ -97,7 +97,7 @@ class _Configulation {
 
   factory _Configulation.fromJson(Map<String, dynamic> json) {
     return _Configulation(
-        themeColorIndex: json['theme_index'],
+        themeIndex: json['theme_index'],
         isVibration: json['vibration'],
         isSoundEffect: json['sound_effect'],
         tcpServerPort: json['tcp_server_port'],

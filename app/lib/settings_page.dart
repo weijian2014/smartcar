@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'config.dart';
+import 'theme.dart';
+import 'app_provider.dart';
+import 'package:provider/provider.dart';
 
 class SettingsPageWidget extends StatefulWidget {
   @override
@@ -10,26 +13,7 @@ class SettingsPageWidget extends StatefulWidget {
 }
 
 class SettingsPageWidgetState extends State<SettingsPageWidget> {
-  final List<Color> themeList = [
-    Colors.black,
-    Colors.red,
-    Colors.teal,
-    Colors.pink,
-    Colors.amber,
-    Colors.orange,
-    Colors.green,
-    Colors.blue,
-    Colors.lightBlue,
-    Colors.purple,
-    Colors.deepPurple,
-    Colors.indigo,
-    Colors.cyan,
-    Colors.brown,
-    Colors.grey,
-    Colors.blueGrey
-  ];
-
-  int _themeColorIndex = 7;
+  int _themeIndex = 7;
   bool _isCanVibrate = false;
   bool _isVibration = false;
   bool _isSoundEffect = false;
@@ -71,11 +55,11 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
   void initState() {
     super.initState();
     Vibrate.canVibrate.then((value) => _isCanVibrate = value);
-    _themeColorIndex = config.getThemeColorIndex();
-    _isVibration = config.getVibration();
-    _isSoundEffect = config.getSoundEffect();
-    _tcpServerPort = config.getTcpServerPort();
-    _rotatingLevel = config.getRemoteControlMotroRotatingLevel();
+    _themeIndex = config.themeIndex;
+    _isVibration = config.vibration;
+    _isSoundEffect = config.soundEffect;
+    _tcpServerPort = config.tcpServerPort;
+    _rotatingLevel = config.remoteControlMotroRotatingLevel;
   }
 
   @override
@@ -105,6 +89,49 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                   ),
                   Divider(),
                   Padding(
+                    padding: EdgeInsets.fromLTRB(20.0, 5.0, 0.0, 0.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 6,
+                              child: Text('主题'),
+                            ),
+                            Expanded(
+                              flex: 0,
+                              child: Text(
+                                  '${ThemeColors.themeName(_themeIndex)}   '),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                          child: Slider(
+                            value: _themeIndex.toDouble(),
+                            onChanged: (value) {
+                              setState(() {
+                                _themeIndex = value.ceil();
+                                _vibrate(FeedbackType.success);
+                                Provider.of<ThemeState>(context, listen: false)
+                                    .changeTheme(_themeIndex);
+                              });
+                            },
+                            onChangeStart: null,
+                            onChangeEnd: (data) {
+                              config.themeIndex = _themeIndex;
+                            },
+                            min: 0.0,
+                            max: ThemeColors.themeCount() - 1,
+                            semanticFormatterCallback: (double newValue) {
+                              return '${newValue.ceil()} dollars}';
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
                       padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
                       child: Row(
                         children: [
@@ -119,7 +146,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                               onChanged: (value) {
                                 setState(() {
                                   _isVibration = value;
-                                  config.setVibration(_isVibration);
+                                  config.vibration = _isVibration;
                                   _vibrate(FeedbackType.success);
                                 });
                               },
@@ -142,7 +169,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                               onChanged: (value) {
                                 setState(() {
                                   _isSoundEffect = value;
-                                  config.setSoundEffect(_isSoundEffect);
+                                  config.soundEffect = _isSoundEffect;
                                   _vibrate(FeedbackType.success);
                                 });
                               },
@@ -178,7 +205,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                             },
                             onChangeStart: null,
                             onChangeEnd: (data) {
-                              config.setTcpServerPort(_tcpServerPort);
+                              config.tcpServerPort = _tcpServerPort;
                             },
                             min: 8866.0,
                             max: 8888.0,
@@ -239,8 +266,8 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                             },
                             onChangeStart: null,
                             onChangeEnd: (data) {
-                              config.setRemoteControlMotroRotatingLevel(
-                                  _rotatingLevel);
+                              config.remoteControlMotroRotatingLevel =
+                                  _rotatingLevel;
                             },
                             min: 0.0,
                             max: 10.0,

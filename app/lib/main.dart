@@ -4,13 +4,15 @@ import 'control_page.dart';
 import 'settings_page.dart';
 import 'tcp_server.dart';
 import 'config.dart';
+import 'package:provider/provider.dart';
+import 'app_provider.dart';
 
 void main() async {
   // 此处要等待Flutter初始化完成
   WidgetsFlutterBinding.ensureInitialized();
   config.init().then((ok) {
     // 此处要等待加载配置完成
-    server.start("0.0.0.0", config.getTcpServerPort());
+    server.start("0.0.0.0", config.tcpServerPort);
     runApp(new MyApp());
   });
 }
@@ -18,10 +20,9 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'SmartCar',
-      home: new BottomNavigationWidget(),
-    );
+    return MultiProvider(providers: [
+      ChangeNotifierProvider(create: (context) => ThemeState()),
+    ], child: BottomNavigationWidget());
   }
 }
 
@@ -57,38 +58,39 @@ class BottomNavigationWidgetState extends State<BottomNavigationWidget>
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      body: pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        //底部导航栏的创建需要对应的功能标签作为子项，这里我就写了3个，每个子项包含一个图标和一个title。
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home,
-            ),
-            label: '首页',
+    return MaterialApp(
+        title: '智能小车',
+        theme: Provider.of<ThemeState>(context).themeData,
+        home: new Scaffold(
+          body: pages[_currentIndex],
+          bottomNavigationBar: BottomNavigationBar(
+            selectedItemColor:
+                Provider.of<ThemeState>(context).themeData.primaryColor,
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.home,
+                ),
+                label: '首页',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.control_camera),
+                label: '遥控',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.settings,
+                ),
+                label: '设置',
+              ),
+            ],
+            currentIndex: _currentIndex,
+            onTap: (int i) {
+              setState(() {
+                _currentIndex = i;
+              });
+            },
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.control_camera),
-            label: '遥控',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.settings,
-            ),
-            label: '设置',
-          ),
-        ],
-        //这是底部导航栏自带的位标属性，表示底部导航栏当前处于哪个导航标签。给他一个初始值0，也就是默认第一个标签页面。
-        currentIndex: _currentIndex,
-        //这是点击属性，会执行带有一个int值的回调函数，这个int值是系统自动返回的你点击的那个标签的位标
-        onTap: (int i) {
-          //进行状态更新，将系统返回的你点击的标签位标赋予当前位标属性，告诉系统当前要显示的导航标签被用户改变了。
-          setState(() {
-            _currentIndex = i;
-          });
-        },
-      ),
-    );
+        ));
   }
 }
