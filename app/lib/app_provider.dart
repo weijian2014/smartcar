@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'config.dart';
 import 'theme.dart';
 
 class ThemeState with ChangeNotifier {
-  int _themeIndex = 7;
+  int _themeIndex = config.themeIndex;
 
   void changeTheme(int themeIndex) {
     _themeIndex = themeIndex;

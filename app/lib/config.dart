@@ -82,7 +82,7 @@ class Config {
 Config config = new Config();
 
 class _Configulation {
-  int themeIndex = 7;
+  int themeIndex = 0;
   bool isVibration = false;
   bool isSoundEffect = false;
   int tcpServerPort = -1;
