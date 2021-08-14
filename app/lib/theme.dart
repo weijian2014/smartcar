@@ -10,71 +10,120 @@ class _ThemeColorData {
 class ThemeColors {
   static List<_ThemeColorData> _themeColorList = [
     _ThemeColorData(
+        name: '暗黑模式', themeData: ThemeData(brightness: Brightness.dark)),
+    _ThemeColorData(
         name: '黑色',
         themeData: ThemeData(
-            primaryColor: Colors.black, primaryColorLight: Colors.black)),
+          brightness: Brightness.light,
+          primaryColor: Colors.black,
+          primaryColorLight: Colors.black,
+          accentColor: Colors.black,
+        )),
     _ThemeColorData(
         name: '红色',
-        themeData:
-            ThemeData(primaryColor: Colors.red, primaryColorLight: Colors.red)),
+        themeData: ThemeData(
+            brightness: Brightness.light,
+            primaryColor: Colors.red,
+            primaryColorLight: Colors.red,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '荼色',
         themeData: ThemeData(
-            primaryColor: Colors.teal, primaryColorLight: Colors.teal)),
+            brightness: Brightness.light,
+            primaryColor: Colors.teal,
+            primaryColorLight: Colors.teal,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '粉色',
         themeData: ThemeData(
-            primaryColor: Colors.pink, primaryColorLight: Colors.pink)),
+            brightness: Brightness.light,
+            primaryColor: Colors.pink,
+            primaryColorLight: Colors.pink,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '琥珀色',
         themeData: ThemeData(
-            primaryColor: Colors.amber, primaryColorLight: Colors.amber)),
+            brightness: Brightness.light,
+            primaryColor: Colors.amber,
+            primaryColorLight: Colors.amber,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '橙色',
         themeData: ThemeData(
-            primaryColor: Colors.orange, primaryColorLight: Colors.orange)),
+            brightness: Brightness.light,
+            primaryColor: Colors.orange,
+            primaryColorLight: Colors.orange,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '绿色',
         themeData: ThemeData(
-            primaryColor: Colors.green, primaryColorLight: Colors.green)),
+            brightness: Brightness.light,
+            primaryColor: Colors.green,
+            primaryColorLight: Colors.green,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '蓝色',
         themeData: ThemeData(
-            primaryColor: Colors.blue, primaryColorLight: Colors.blue)),
+            brightness: Brightness.light,
+            primaryColor: Colors.blue,
+            primaryColorLight: Colors.blue,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '亮蓝色',
         themeData: ThemeData(
+            brightness: Brightness.light,
             primaryColor: Colors.lightBlue,
-            primaryColorLight: Colors.lightBlue)),
+            primaryColorLight: Colors.lightBlue,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '紫色',
         themeData: ThemeData(
-            primaryColor: Colors.purple, primaryColorLight: Colors.purple)),
+            brightness: Brightness.light,
+            primaryColor: Colors.purple,
+            primaryColorLight: Colors.purple,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '深紫色',
         themeData: ThemeData(
+            brightness: Brightness.light,
             primaryColor: Colors.deepPurple,
-            primaryColorLight: Colors.deepPurple)),
+            primaryColorLight: Colors.deepPurple,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '靛蓝色',
         themeData: ThemeData(
-            primaryColor: Colors.indigo, primaryColorLight: Colors.indigo)),
+            brightness: Brightness.light,
+            primaryColor: Colors.indigo,
+            primaryColorLight: Colors.indigo,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '青色',
         themeData: ThemeData(
-            primaryColor: Colors.cyan, primaryColorLight: Colors.cyan)),
+            brightness: Brightness.light,
+            primaryColor: Colors.cyan,
+            primaryColorLight: Colors.cyan,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '棕色',
         themeData: ThemeData(
-            primaryColor: Colors.brown, primaryColorLight: Colors.brown)),
+            brightness: Brightness.light,
+            primaryColor: Colors.brown,
+            primaryColorLight: Colors.brown,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '灰色',
         themeData: ThemeData(
-            primaryColor: Colors.grey, primaryColorLight: Colors.grey)),
+            brightness: Brightness.light,
+            primaryColor: Colors.grey,
+            primaryColorLight: Colors.grey,
+            accentColor: Colors.black)),
     _ThemeColorData(
         name: '蓝灰色',
         themeData: ThemeData(
-            primaryColor: Colors.blueGrey, primaryColorLight: Colors.blueGrey)),
+            brightness: Brightness.light,
+            primaryColor: Colors.blueGrey,
+            primaryColorLight: Colors.blueGrey,
+            accentColor: Colors.black)),
   ];
 
   static int themeCount() => _themeColorList.length;

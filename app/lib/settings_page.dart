@@ -45,9 +45,9 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
     }
   }
 
-  void _vibrate(FeedbackType type) {
+  void _vibrate() {
     if (_isCanVibrate && _isVibration) {
-      Vibrate.feedback(type);
+      Vibrate.feedback(FeedbackType.medium);
     }
   }
 
@@ -110,12 +110,15 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                           child: Slider(
                             value: _themeIndex.toDouble(),
                             onChanged: (value) {
-                              setState(() {
-                                _themeIndex = value.ceil();
-                                _vibrate(FeedbackType.success);
-                                Provider.of<ThemeState>(context, listen: false)
-                                    .changeTheme(_themeIndex);
-                              });
+                              if (value.ceil() != _themeIndex) {
+                                setState(() {
+                                  _themeIndex = value.ceil();
+                                  _vibrate();
+                                  Provider.of<ThemeState>(context,
+                                          listen: false)
+                                      .changeTheme(_themeIndex);
+                                });
+                              }
                             },
                             onChangeStart: null,
                             onChangeEnd: (data) {
@@ -147,7 +150,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                                 setState(() {
                                   _isVibration = value;
                                   config.vibration = _isVibration;
-                                  _vibrate(FeedbackType.success);
+                                  _vibrate();
                                 });
                               },
                             ),
@@ -170,7 +173,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                                 setState(() {
                                   _isSoundEffect = value;
                                   config.soundEffect = _isSoundEffect;
-                                  _vibrate(FeedbackType.success);
+                                  _vibrate();
                                 });
                               },
                             ),
@@ -198,10 +201,12 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                           child: Slider(
                             value: _tcpServerPort.toDouble(),
                             onChanged: (value) {
-                              setState(() {
-                                _tcpServerPort = value.ceil();
-                                _vibrate(FeedbackType.success);
-                              });
+                              if (value.ceil() != _tcpServerPort) {
+                                setState(() {
+                                  _tcpServerPort = value.ceil();
+                                  _vibrate();
+                                });
+                              }
                             },
                             onChangeStart: null,
                             onChangeEnd: (data) {
@@ -259,10 +264,12 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                           child: Slider(
                             value: _rotatingLevel.toDouble(),
                             onChanged: (value) {
-                              setState(() {
-                                _rotatingLevel = value.ceil();
-                                _vibrate(FeedbackType.success);
-                              });
+                              if (value.ceil() != _rotatingLevel) {
+                                setState(() {
+                                  _rotatingLevel = value.ceil();
+                                  _vibrate();
+                                });
+                              }
                             },
                             onChangeStart: null,
                             onChangeEnd: (data) {

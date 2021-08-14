@@ -61,6 +61,7 @@ class BottomNavigationWidgetState extends State<BottomNavigationWidget>
     return MaterialApp(
         title: '智能小车',
         theme: Provider.of<ThemeState>(context).themeData,
+        // darkTheme: Provider.of<ThemeState>(context).themeData, 这里不需要
         home: new Scaffold(
           body: pages[_currentIndex],
           bottomNavigationBar: BottomNavigationBar(
