@@ -4,6 +4,7 @@ import 'config.dart';
 import 'theme.dart';
 import 'app_provider.dart';
 import 'package:provider/provider.dart';
+import 'audio.dart';
 
 class SettingsPageWidget extends StatefulWidget {
   @override
@@ -65,7 +66,11 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
     }
   }
 
-  void _vibrate() {
+  void _effect() async {
+    if (_isSoundEffect) {
+      player.play(AudioType.wind_up);
+    }
+
     if (_isCanVibrate && _isVibration) {
       Vibrate.feedback(FeedbackType.heavy);
     }
@@ -138,7 +143,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                                 if (value.ceil() != _themeIndex) {
                                   setState(() {
                                     _themeIndex = value.ceil();
-                                    _vibrate();
+                                    _effect();
                                     Provider.of<ThemeState>(context,
                                             listen: false)
                                         .changeTheme(_themeIndex);
@@ -175,7 +180,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                                   setState(() {
                                     _isVibration = value;
                                     config.vibration = _isVibration;
-                                    _vibrate();
+                                    _effect();
                                   });
                                 },
                               ),
@@ -198,7 +203,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                                   setState(() {
                                     _isSoundEffect = value;
                                     config.soundEffect = _isSoundEffect;
-                                    _vibrate();
+                                    _effect();
                                   });
                                 },
                               ),
@@ -232,7 +237,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                                 if (value.ceil() != _tcpServerPort) {
                                   setState(() {
                                     _tcpServerPort = value.ceil();
-                                    _vibrate();
+                                    _effect();
                                   });
                                 }
                               },
@@ -298,7 +303,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                                 if (value.ceil() != _rotatingLevel) {
                                   setState(() {
                                     _rotatingLevel = value.ceil();
-                                    _vibrate();
+                                    _effect();
                                   });
                                 }
                               },
