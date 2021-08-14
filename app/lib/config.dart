@@ -1,116 +1,75 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Config {
-  bool _isInited = false;
+class _AppConfig {
+  bool inInit = false;
 
-  late _Configulation _configulation;
+  late SharedPreferences _prefs;
 
   //私有构造函数
-  Config._internal();
+  _AppConfig._internal();
 
   //保存单例
-  static Config _singleton = new Config._internal();
+  static _AppConfig _singleton = new _AppConfig._internal();
 
   //工厂构造函数
-  factory Config() => _singleton;
+  factory _AppConfig() => _singleton;
 
   Future<bool> init() async {
-    var conf = await rootBundle.loadString('assets/config/config.json');
-    _configulation = new _Configulation.fromJson(json.decode(conf));
-    _isInited = true;
-    return _isInited;
-  }
-
-  void save() async {
-    File file = new File('assets/config/config.json');
-    await file.writeAsString(json.encode(_configulation));
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _prefs = prefs;
+    inInit = true;
+    return inInit;
   }
 
   int get themeIndex {
-    assert(_isInited);
-    return _configulation.themeIndex;
+    assert(inInit);
+    return _prefs.getInt('themeIndex') ?? 0;
   }
 
   void set themeIndex(int index) {
-    assert(_isInited);
-    _configulation.themeIndex = index;
+    assert(inInit);
+    _prefs.setInt('themeIndex', index);
   }
 
-  bool get vibration {
-    assert(_isInited);
-    return _configulation.isVibration;
+  bool get isVibrate {
+    assert(inInit);
+    return _prefs.getBool('isVibrate') ?? false;
   }
 
-  void set vibration(bool isVibration) {
-    assert(_isInited);
-    _configulation.isVibration = isVibration;
+  void set isVibrate(bool isVibrate) {
+    assert(inInit);
+    _prefs.setBool('isVibrate', isVibrate);
   }
 
-  bool get soundEffect {
-    assert(_isInited);
-    return _configulation.isSoundEffect;
+  bool get isSoundEffect {
+    assert(inInit);
+    return _prefs.getBool('isSoundEffect') ?? true;
   }
 
-  void set soundEffect(bool isSoundEffect) {
-    assert(_isInited);
-    _configulation.isSoundEffect = isSoundEffect;
+  void set isSoundEffect(bool isVibrate) {
+    assert(inInit);
+    _prefs.setBool('isSoundEffect', isVibrate);
   }
 
   int get tcpServerPort {
-    assert(_isInited);
-    return _configulation.tcpServerPort;
+    assert(inInit);
+    return _prefs.getInt('tcpServerPort') ?? 8888;
   }
 
   void set tcpServerPort(int port) {
-    assert(_isInited);
-    _configulation.tcpServerPort = port;
+    assert(inInit);
+    _prefs.setInt('tcpServerPort', port);
   }
 
-  int get remoteControlMotroRotatingLevel {
-    assert(_isInited);
-    return _configulation.remoteControl.motroRotatingLevel;
+  int get motroRotatingLevel {
+    assert(inInit);
+    return _prefs.getInt('motroRotatingLevel') ?? 0;
   }
 
-  void set remoteControlMotroRotatingLevel(int level) {
-    assert(_isInited);
-    _configulation.remoteControl.motroRotatingLevel = level;
-  }
-}
-
-Config config = new Config();
-
-class _Configulation {
-  int themeIndex = 0;
-  bool isVibration = false;
-  bool isSoundEffect = false;
-  int tcpServerPort = -1;
-  _RemoteControl remoteControl;
-
-  _Configulation(
-      {required this.themeIndex,
-      required this.isVibration,
-      required this.isSoundEffect,
-      required this.tcpServerPort,
-      required this.remoteControl});
-
-  factory _Configulation.fromJson(Map<String, dynamic> json) {
-    return _Configulation(
-        themeIndex: json['theme_index'],
-        isVibration: json['vibration'],
-        isSoundEffect: json['sound_effect'],
-        tcpServerPort: json['tcp_server_port'],
-        remoteControl: new _RemoteControl.fromJson(json['remote_control']));
+  void set motroRotatingLevel(int level) {
+    assert(inInit);
+    _prefs.setInt('motroRotatingLevel', level);
   }
 }
 
-class _RemoteControl {
-  int motroRotatingLevel = -1;
-
-  _RemoteControl({required this.motroRotatingLevel});
-
-  factory _RemoteControl.fromJson(Map<String, dynamic> json) {
-    return _RemoteControl(motroRotatingLevel: json['motro_rotating_level']);
-  }
-}
+_AppConfig config = new _AppConfig();

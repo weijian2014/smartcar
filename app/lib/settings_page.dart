@@ -81,10 +81,10 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
     super.initState();
     Vibrate.canVibrate.then((value) => _isCanVibrate = value);
     _themeIndex = config.themeIndex;
-    _isVibration = config.vibration;
-    _isSoundEffect = config.soundEffect;
+    _isVibration = config.isVibrate;
+    _isSoundEffect = config.isSoundEffect;
     _tcpServerPort = config.tcpServerPort;
-    _rotatingLevel = config.remoteControlMotroRotatingLevel;
+    _rotatingLevel = config.motroRotatingLevel;
   }
 
   @override
@@ -179,7 +179,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                                 onChanged: (value) {
                                   setState(() {
                                     _isVibration = value;
-                                    config.vibration = _isVibration;
+                                    config.isVibrate = _isVibration;
                                     _effect();
                                   });
                                 },
@@ -202,7 +202,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                                 onChanged: (value) {
                                   setState(() {
                                     _isSoundEffect = value;
-                                    config.soundEffect = _isSoundEffect;
+                                    config.isSoundEffect = _isSoundEffect;
                                     _effect();
                                   });
                                 },
@@ -309,8 +309,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                               },
                               onChangeStart: null,
                               onChangeEnd: (data) {
-                                config.remoteControlMotroRotatingLevel =
-                                    _rotatingLevel;
+                                config.motroRotatingLevel = _rotatingLevel;
                               },
                               min: 0.0,
                               max: 10.0,

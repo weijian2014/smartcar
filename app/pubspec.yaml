@@ -32,8 +32,8 @@ dependencies:
   event_bus: ^2.0.0
   flutter_vibrate: ^1.1.0
   provider: ^5.0.0
-  permission_handler: ^8.1.4+2
   audioplayers: ^0.19.1
+  shared_preferences: ^2.0.6
 
 dev_dependencies:
   flutter_test:
@@ -51,7 +51,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/target.png
-    - assets/config/config.json
     - assets/audio/wind_up.mp3
 
   # To add assets to your application, add an assets section, like this:

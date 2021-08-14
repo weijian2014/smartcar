@@ -1,9 +1,0 @@
-{
-   "theme_index": 0,
-   "vibration": false,
-   "sound_effect": true,
-   "tcp_server_port": 8888,
-   "remote_control": {
-      "motro_rotating_level": 0
-   }
-}
