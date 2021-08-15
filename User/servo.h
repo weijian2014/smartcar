@@ -5,6 +5,8 @@
 
 extern int8_t Current_Angle;
 
+void Servo_Turn_Abs_Angle(uint8_t angle);
+
 void Servo_Turn_Right(uint8_t angle);
 
 void Servo_Turn_Left(uint8_t angle);

@@ -16,6 +16,15 @@ uint16_t Angle_Compare_value[91] = { 1280, 1287, 1293, 1300, 1307, 1314, 1320, 1
 
 };
 
+void Servo_Turn_Abs_Angle(uint8_t angle) {
+   if (angle == 0) {
+      return;
+   }
+
+   uint8_t angleIndex = angle - Angle_Index_Offset;
+   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, Angle_Compare_value[angleIndex]);
+}
+
 void Servo_Turn_Right(uint8_t angle) {
    if ((Current_Angle + angle) > Max_Angle) {
       angle = Max_Angle - Current_Angle;

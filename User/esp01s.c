@@ -8,6 +8,15 @@ uint32_t ESP01S_Recv_Size = 0;
 
 uint8_t ESP01S_Send_Buf[ESP01S_Buf_Max_Len]; // 发送给串口的数据
 
+const char Hex_Table[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+void ToHex(char* src, int len, char* dest) {
+   while (len--) {
+      *(dest + 2 * len + 1) = Hex_Table[(*(src + len)) & 0x0f];
+      *(dest + 2 * len)     = Hex_Table[(*(src + len)) >> 4];
+   }
+}
+
 void ESP01S_Init() {
    // ESP01S接在STM32C8T6的USART1(PA9, PA10)上
    //   ESP01S      STM32C8T6
@@ -56,13 +65,14 @@ void USART1_IRQHandler(void) {
       ESP01S_Recv_Size                  = ESP01S_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
       ESP01S_Recv_Buf[ESP01S_Recv_Size] = '\0';                                                      // 添加结束符
       if (ESP01S_Recv_Size) {
-         printf("USART3 - Recv from ESP01S, len=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
-         uint32_t len = 0;
-         uint8_t  echo[ESP01S_Buf_Max_Len + 32];
-         len = sprintf((char*)echo, "Recv from ESP01S, len=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
-         HAL_UART_Transmit_DMA(&huart1, echo, len);
-         ESP01S_Recv_Size = 0;
-         HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+         // printf("USART3 - Recv from ESP01S, len=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
+
+         // uint32_t len = 0;
+         // uint8_t  echo[ESP01S_Buf_Max_Len + 32];
+         // len = sprintf((char*)echo, "Recv from ESP01S, len=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
+         // HAL_UART_Transmit_DMA(&huart1, echo, len);
+         // ESP01S_Recv_Size = 0;
+         // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
       }
 
       HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Buf_Max_Len); // DMA_NORMAL需要重新启动DMA接收, 如果是DMA_CIRCULAR模式, 则不需要再次启动

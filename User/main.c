@@ -50,17 +50,45 @@ int main(void) {
    Motor_Init();
    Servo_Init();
 
-   uint16_t rpm = 500;
+   uint16_t rpm = 0;
    uint16_t ms  = 500;
-   (void)rpm;
-   (void)ms;
 
 #if 0
    Motor_RunN(1, rpm);
    Motor_RunS(2, rpm);
 #endif
 
+   uint8_t hexBuf[13];
+   hexBuf[12] = '\0';
    while (1) {
+      if (ESP01S_Recv_Size >= 5) {
+         ToHex((char*)ESP01S_Recv_Buf, ESP01S_Recv_Size, (char*)hexBuf);
+
+         ControlMessage* msg = (ControlMessage*)ESP01S_Recv_Buf;
+         printf("ESP01S_Recv_Buf=%s, totalLength=%d, optType=%d, direction=%d, angel=%d, level=%d\n", hexBuf, msg->totalLength, msg->optType, msg->direction, msg->angel, msg->level);
+
+         switch (msg->optType) {
+         case opt_control: {
+            Servo_Turn_Abs_Angle(msg->angel);
+            rpm = Speed_Rpm[msg->level];
+            if (msg->direction == dir_forward) {
+               Motor_RunN(1, rpm);
+               Motor_RunS(2, rpm);
+            }
+            else {
+               Motor_RunN(2, rpm);
+               Motor_RunS(1, rpm);
+            }
+         }
+
+         break;
+         default:
+            break;
+         }
+
+         ESP01S_Recv_Size = 0;
+      }
+
       // HAL_Delay(500);
       // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 #if 0

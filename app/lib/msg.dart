@@ -62,8 +62,8 @@ String toHex(Uint8List? encodeData) {
 }
 
 abstract class Message {
-  int length = 2; // 1Byte
-  OperationType optType = OperationType.opt_echo; // 1Byte
+  int length = 2; // 1Byte, Uint8
+  OperationType optType = OperationType.opt_echo; // 1Byte, Uint8
 
   Message(this.length, this.optType);
 
@@ -140,12 +140,12 @@ class ConfigMessage extends Message {
 class ControlMessage extends Message {
   int direction; // 1Byte, Uint8
 
-  int angel; // 2Byte, Uint16
+  int angel; // 1Byte, Uint8
 
   MotorRotatingLevel level; // 1Byte, Uint8
 
   ControlMessage(this.direction, this.angel, this.level)
-      : super(6, OperationType.opt_control);
+      : super(5, OperationType.opt_control);
 
   int getAngel() => this.angel;
 
@@ -157,8 +157,8 @@ class ControlMessage extends Message {
     data.setUint8(0, length);
     data.setUint8(1, optType.index);
     data.setUint8(2, direction);
-    data.setUint16(3, angel);
-    data.setUint8(5, level.index);
+    data.setUint8(3, angel);
+    data.setUint8(4, level.index);
     return data.buffer.asUint8List();
   }
 
