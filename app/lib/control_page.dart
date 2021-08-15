@@ -6,6 +6,8 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'app_provider.dart';
 import 'my_event_bus.dart';
 import 'tcp_server.dart';
+import 'config.dart';
+import 'msg.dart';
 
 class ControlPageWidget extends StatefulWidget {
   @override
@@ -15,9 +17,12 @@ class ControlPageWidget extends StatefulWidget {
 }
 
 class ControlPageWidgetState extends State<ControlPageWidget> {
+  final double doublePrecision = 0.01;
+  final double doubleZero = 0.00000000;
+
   List<double> _accelerometerValues = <double>[0.0, 0.0, 0.0];
-  List<double> _userAccelerometerValues = <double>[0.0, 0.0, 0.0];
-  List<double> _gyroscopeValues = <double>[0.0, 0.0, 0.0];
+  // List<double> _userAccelerometerValues = <double>[0.0, 0.0, 0.0];
+  // List<double> _gyroscopeValues = <double>[0.0, 0.0, 0.0];
   String _tcpServerEvent = "";
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
@@ -34,25 +39,25 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
       ),
     );
 
-    _streamSubscriptions.add(
-      userAccelerometerEvents.listen(
-        (UserAccelerometerEvent event) {
-          setState(() {
-            _userAccelerometerValues = <double>[event.x, event.y, event.z];
-          });
-        },
-      ),
-    );
+    // _streamSubscriptions.add(
+    //   userAccelerometerEvents.listen(
+    //     (UserAccelerometerEvent event) {
+    //       setState(() {
+    //         _userAccelerometerValues = <double>[event.x, event.y, event.z];
+    //       });
+    //     },
+    //   ),
+    // );
 
-    _streamSubscriptions.add(
-      gyroscopeEvents.listen(
-        (GyroscopeEvent event) {
-          setState(() {
-            _gyroscopeValues = <double>[event.x, event.y, event.z];
-          });
-        },
-      ),
-    );
+    // _streamSubscriptions.add(
+    //   gyroscopeEvents.listen(
+    //     (GyroscopeEvent event) {
+    //       setState(() {
+    //         _gyroscopeValues = <double>[event.x, event.y, event.z];
+    //       });
+    //     },
+    //   ),
+    // );
 
     _streamSubscriptions.add(bus.listen<TcpServerEvent>((TcpServerEvent event) {
       setState(() {
@@ -68,9 +73,6 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
       subscription.cancel();
     }
   }
-
-  final double doublePrecision = 0.01;
-  final double doubleZero = 0.00000000;
 
   // double类型的精度问题, 此函数用于比较两个double类型接近相等
   bool _almostEqual(double a, double b) {
@@ -528,19 +530,66 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
     return angel;
   }
 
+  int _calcSpeedLevel(List<double>? accelerometerValues) {
+    if (config.motroRotatingLevel != 0) {
+      return config.motroRotatingLevel;
+    } else {
+      int x = accelerometerValues![0].ceil().abs();
+      int y = accelerometerValues[1].ceil().abs();
+      int level = ((x + y) / 2).ceil();
+      print('level=$level');
+      return level;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final accelerometer =
         _accelerometerValues.map((double v) => v.toStringAsFixed(1)).toList();
 
-    final userAccelerometer = _userAccelerometerValues
-        .map((double v) => v.toStringAsFixed(1))
-        .toList();
+    // final userAccelerometer = _userAccelerometerValues
+    //     .map((double v) => v.toStringAsFixed(1))
+    //     .toList();
 
-    final gyroscope =
-        _gyroscopeValues.map((double v) => v.toStringAsFixed(1)).toList();
+    // final gyroscope =
+    //     _gyroscopeValues.map((double v) => v.toStringAsFixed(1)).toList();
 
     final int angel = _calcAngle(_accelerometerValues);
+
+    int direction = 1; // 1: 前进, 2: 后退
+    int al = 90; // 正方向
+    int level = _calcSpeedLevel(_accelerometerValues);
+
+    if (angel == 0 || angel == 180 || angel == 360) {
+      level = 0;
+    } else if (angel < 180) {
+      direction = 1;
+      if (angel < 45) {
+        al = 45;
+      } else if (angel > 135) {
+        al = 135;
+      } else {
+        al = angel;
+      }
+    } else {
+      direction = 2;
+      if (angel < 225) {
+        al = 45;
+      } else if (angel > 315) {
+        al = 135;
+      } else {
+        al = angel;
+        if (al < 270) {
+          al = 270 - al;
+        } else {
+          al = al - 180;
+        }
+      }
+    }
+
+    ControlMessage msg =
+        new ControlMessage(direction, al, MotorRotatingLevel.values[level]);
+    server.sendToAll(msg);
 
     return Theme(
         data: Provider.of<ThemeState>(context).themeData,
@@ -569,24 +618,24 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text('UserAccelerometer: $userAccelerometer'),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text('Gyroscope: $gyroscope'),
-                      ],
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.all(10.0),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //     children: <Widget>[
+                  //       Text('UserAccelerometer: $userAccelerometer'),
+                  //     ],
+                  //   ),
+                  // ),
+                  // Padding(
+                  //   padding: const EdgeInsets.all(10.0),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //     children: <Widget>[
+                  //       Text('Gyroscope: $gyroscope'),
+                  //     ],
+                  //   ),
+                  // ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Row(

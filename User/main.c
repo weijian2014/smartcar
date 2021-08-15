@@ -50,8 +50,8 @@ int main(void) {
    Motor_Init();
    Servo_Init();
 
-   uint16_t rpm = 200;
-   uint16_t ms  = 2000;
+   uint16_t rpm = 500;
+   uint16_t ms  = 500;
    (void)rpm;
    (void)ms;
 
@@ -64,6 +64,9 @@ int main(void) {
       // HAL_Delay(500);
       // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 #if 0
+      Motor_RunN(1, rpm); //电机1反转
+      Motor_RunS(2, rpm); //电机2正转
+
       HAL_Delay(ms);
       Servo_Turn_Right(30);
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);

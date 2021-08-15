@@ -138,11 +138,14 @@ class ConfigMessage extends Message {
 }
 
 class ControlMessage extends Message {
-  int angel; // 2Byte
+  int direction; // 1Byte, Uint8
 
-  MotorRotatingLevel level; // 1Byte
+  int angel; // 2Byte, Uint16
 
-  ControlMessage(this.angel, this.level) : super(5, OperationType.opt_control);
+  MotorRotatingLevel level; // 1Byte, Uint8
+
+  ControlMessage(this.direction, this.angel, this.level)
+      : super(6, OperationType.opt_control);
 
   int getAngel() => this.angel;
 
@@ -153,14 +156,15 @@ class ControlMessage extends Message {
     ByteData data = ByteData(this.length);
     data.setUint8(0, length);
     data.setUint8(1, optType.index);
-    data.setUint16(2, angel);
-    data.setUint8(4, level.index);
+    data.setUint8(2, direction);
+    data.setUint16(3, angel);
+    data.setUint8(5, level.index);
     return data.buffer.asUint8List();
   }
 
   @override
   String toString() {
-    return "ControlMessage: length=[$length], optType=[$optType], angel=[$angel], level=[$level], encode=${encode()}, hex=[${toHex(encode())}]";
+    return "ControlMessage: length=[$length], optType=[$optType], direction=[$direction], angel=[$angel], level=[$level], encode=${encode()}, hex=[${toHex(encode())}]";
   }
 }
 

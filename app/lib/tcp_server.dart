@@ -180,6 +180,20 @@ class _TcpServer {
     }
   }
 
+  void sendToAll(Message msg) async {
+    try {
+      for (var client in _clients.entries) {
+        var c = client.key;
+        c.add(msg.encode());
+        print(
+            "Server[${_server.address.host}:${_server.port}] send to client[${c.remoteAddress.host}:${c.remotePort}], $msg");
+      }
+    } catch (e) {
+      print(
+          "Server[${_server.address.host}:${_server.port}] send to all fail, $e");
+    }
+  }
+
   String getServerInfo() {
     if (!isStarted) {
       return "The server has not started";
