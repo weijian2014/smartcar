@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'app_provider.dart';
-import 'my_event_bus.dart';
+// import 'my_event_bus.dart';
 import 'tcp_server.dart';
 import 'config.dart';
 import 'msg.dart';
@@ -23,7 +23,7 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
   List<double> _accelerometerValues = <double>[0.0, 0.0, 0.0];
   // List<double> _userAccelerometerValues = <double>[0.0, 0.0, 0.0];
   // List<double> _gyroscopeValues = <double>[0.0, 0.0, 0.0];
-  String _tcpServerEvent = "";
+  // String _tcpServerEvent = "";
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
   @override
@@ -59,11 +59,11 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
     //   ),
     // );
 
-    _streamSubscriptions.add(bus.listen<TcpServerEvent>((TcpServerEvent event) {
-      setState(() {
-        _tcpServerEvent = event.msg;
-      });
-    }));
+    // _streamSubscriptions.add(bus.listen<TcpServerEvent>((TcpServerEvent event) {
+    //   setState(() {
+    //     _tcpServerEvent = event.msg;
+    //   });
+    // }));
   }
 
   @override
@@ -556,6 +556,8 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
 
     final int angel = _calcAngle(_accelerometerValues);
 
+    String info = '正切角度: $angel, ';
+
     int direction = 1; // 1: 前进, 2: 后退
     int al = 90; // 正方向
     int level = _calcSpeedLevel(_accelerometerValues);
@@ -579,13 +581,17 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
         al = 135;
       } else {
         al = angel;
-        if (al < 270) {
-          al = 270 - al;
-        } else {
-          al = al - 180;
-        }
+        al -= 180;
       }
     }
+
+    if (direction == 1) {
+      info += '行车方向: 前进, ';
+    } else {
+      info += '行车方向: 后退, ';
+    }
+
+    info += '舵机角度: $al, 速度等级: $level';
 
     ControlMessage msg =
         new ControlMessage(direction, al, MotorRotatingLevel.values[level]);
@@ -641,7 +647,7 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Text('角度: $angel'),
+                        Text('$info', style: TextStyle(fontSize: 12)),
                       ],
                     ),
                   ),
@@ -663,15 +669,15 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text('服务器事件: $_tcpServerEvent'),
-                      ],
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.all(10.0),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //     children: <Widget>[
+                  //       Text('服务器事件: $_tcpServerEvent'),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             )));

@@ -21,6 +21,7 @@ void Servo_Turn_Abs_Angle(uint8_t angle) {
       return;
    }
 
+   Current_Angle      = angle;
    uint8_t angleIndex = angle - Angle_Index_Offset;
    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, Angle_Compare_value[angleIndex]);
 }

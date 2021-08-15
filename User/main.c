@@ -61,6 +61,8 @@ int main(void) {
    uint8_t hexBuf[13];
    hexBuf[12] = '\0';
    while (1) {
+
+#if 0
       if (ESP01S_Recv_Size >= 5) {
          ToHex((char*)ESP01S_Recv_Buf, ESP01S_Recv_Size, (char*)hexBuf);
 
@@ -88,6 +90,8 @@ int main(void) {
 
          ESP01S_Recv_Size = 0;
       }
+
+#endif
 
       // HAL_Delay(500);
       // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);

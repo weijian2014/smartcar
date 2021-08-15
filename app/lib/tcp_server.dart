@@ -150,26 +150,39 @@ class _TcpServer {
             // 监听客户端socket错误
             print(
                 "Client[${client.remoteAddress.host}:${client.remotePort}] receive data error error, $error");
+            _clients.remove(client);
             client.close();
           }, onDone: null, cancelOnError: false);
         } catch (e) {
           print(
               "Client[${client.remoteAddress.host}:${client.remotePort}] receive data error，$e");
+          _clients.remove(client);
           client.close();
         }
       }, onError: (error) {
         // TCP服务器socket监听错误
         print(
             "Server[${_server.address.host}:${_server.port}] accept error, $error");
+        for (var c in _clients.entries) {
+          c.key.close();
+        }
+        _clients.clear();
         _server.close();
+        isStarted = false;
       }, onDone: null, cancelOnError: false);
     } catch (e) {
       print("连接socket出现异常，e=${e.toString()}");
+      for (var c in _clients.entries) {
+        c.key.close();
+      }
+      _clients.clear();
       _server.close();
+      isStarted = false;
     }
   }
 
   void send(Socket client, Message msg) async {
+    assert(isStarted);
     try {
       client.add(msg.encode());
       print(
@@ -181,6 +194,7 @@ class _TcpServer {
   }
 
   void sendToAll(Message msg) async {
+    assert(isStarted);
     try {
       for (var client in _clients.entries) {
         var c = client.key;
@@ -204,12 +218,11 @@ class _TcpServer {
 
   String getClientInfo() {
     if (_clients.isEmpty) {
-      return "No client connected to server yet";
+      return "No client yet";
     } else {
       String info = "";
       for (var client in _clients.entries) {
-        info +=
-            "[${client.key.remoteAddress.host}:${client.key.remotePort}] connected to server";
+        info += "[${client.key.remoteAddress.host}:${client.key.remotePort}],";
       }
       return info;
     }
