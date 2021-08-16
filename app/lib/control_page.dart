@@ -576,12 +576,12 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
     } else {
       direction = 2;
       if (angel < 225) {
-        al = 45;
-      } else if (angel > 315) {
         al = 135;
+      } else if (angel > 315) {
+        al = 45;
       } else {
         al = angel;
-        al -= 180;
+        al = 360 - al;
       }
     }
 
