@@ -20,6 +20,8 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
   final double doublePrecision = 0.01;
   final double doubleZero = 0.00000000;
 
+  DateTime lastTime = DateTime.now();
+
   List<double> _accelerometerValues = <double>[0.0, 0.0, 0.0];
   // List<double> _userAccelerometerValues = <double>[0.0, 0.0, 0.0];
   // List<double> _gyroscopeValues = <double>[0.0, 0.0, 0.0];
@@ -536,16 +538,16 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
     } else {
       int x = accelerometerValues![0].ceil().abs();
       int y = accelerometerValues[1].ceil().abs();
-      int level = ((x + y) / 2).ceil();
-      print('level=$level');
+      int level = x + y;
+      level = min(level, 10);
       return level;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final accelerometer =
-        _accelerometerValues.map((double v) => v.toStringAsFixed(1)).toList();
+    // final accelerometer =
+    //     _accelerometerValues.map((double v) => v.toStringAsFixed(1)).toList();
 
     // final userAccelerometer = _userAccelerometerValues
     //     .map((double v) => v.toStringAsFixed(1))
@@ -554,34 +556,35 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
     // final gyroscope =
     //     _gyroscopeValues.map((double v) => v.toStringAsFixed(1)).toList();
 
-    final int angel = _calcAngle(_accelerometerValues);
+    // 加速度计的正切角度
+    final int tangentAngel = _calcAngle(_accelerometerValues);
 
-    String info = '正切角度: $angel, ';
+    String info = '正切角度: $tangentAngel, ';
 
     int direction = 1; // 1: 前进, 2: 后退
-    int al = 90; // 正方向
+    int servoAngle = 90; // 舵机的正切角度
     int level = _calcSpeedLevel(_accelerometerValues);
 
-    if (angel == 0 || angel == 180 || angel == 360) {
+    if (tangentAngel == 0 || tangentAngel == 180 || tangentAngel == 360) {
       level = 0;
-    } else if (angel < 180) {
+    } else if (tangentAngel < 180) {
       direction = 1;
-      if (angel < 45) {
-        al = 45;
-      } else if (angel > 135) {
-        al = 135;
+      if (tangentAngel < 45) {
+        servoAngle = 45;
+      } else if (tangentAngel > 135) {
+        servoAngle = 135;
       } else {
-        al = angel;
+        servoAngle = tangentAngel;
       }
     } else {
       direction = 2;
-      if (angel < 225) {
-        al = 135;
-      } else if (angel > 315) {
-        al = 45;
+      if (tangentAngel < 225) {
+        servoAngle = 135;
+      } else if (tangentAngel > 315) {
+        servoAngle = 45;
       } else {
-        al = angel;
-        al = 360 - al;
+        servoAngle = tangentAngel;
+        servoAngle = 360 - servoAngle;
       }
     }
 
@@ -591,11 +594,15 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
       info += '行车方向: 后退, ';
     }
 
-    info += '舵机角度: $al, 速度等级: $level';
+    info += '舵机角度: $servoAngle, 速度等级: $level';
 
-    ControlMessage msg =
-        new ControlMessage(direction, al, MotorRotatingLevel.values[level]);
-    server.sendToAll(msg);
+    DateTime now = DateTime.now();
+    if (now.difference(lastTime).inMilliseconds >= 20) {
+      lastTime = now;
+      ControlMessage msg = new ControlMessage(
+          direction, servoAngle, MotorRotatingLevel.values[level]);
+      server.sendToAll(msg);
+    }
 
     return Theme(
         data: Provider.of<ThemeState>(context).themeData,
@@ -604,26 +611,26 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
               title: new Text("遥控"),
             ),
             body: Container(
+              constraints: BoxConstraints.expand(),
               alignment: Alignment.center,
               height: double.infinity,
               width: double.infinity,
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.max,
                 children: [
                   Image.asset(
                     "assets/images/target.png",
                     fit: BoxFit.cover,
-                    // width: 300,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text('Accelerometer: $accelerometer'),
-                      ],
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.all(10.0),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //     children: <Widget>[
+                  //       Text('Accelerometer: $accelerometer'),
+                  //     ],
+                  //   ),
+                  // ),
                   // Padding(
                   //   padding: const EdgeInsets.all(10.0),
                   //   child: Row(

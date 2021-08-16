@@ -18,7 +18,6 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
   bool _isCanVibrate = false;
   bool _isVibration = false;
   bool _isSoundEffect = false;
-  int _tcpServerPort = 8888;
   int _rotatingLevel = 0;
 
   BoxDecoration _setBoxDecoration() {
@@ -83,7 +82,6 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
     _themeIndex = config.themeIndex;
     _isVibration = config.isVibrate;
     _isSoundEffect = config.isSoundEffect;
-    _tcpServerPort = config.tcpServerPort;
     _rotatingLevel = config.motroRotatingLevel;
   }
 
@@ -211,47 +209,21 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                           ],
                         )),
                     Padding(
-                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 20.0),
                       child: Column(
                         children: [
                           Row(
                             children: [
                               Expanded(
                                 flex: 6,
-                                child: Text('服务器端口'),
+                                child: Text('TCP服务器端口'),
                               ),
                               Expanded(
                                 flex: 0,
-                                child: Text('${_tcpServerPort}   '),
+                                child: Text('${config.tcpServerPort}   '),
                               ),
                             ],
-                          ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-                            child: Slider(
-                              value: _tcpServerPort.toDouble(),
-                              activeColor: Provider.of<ThemeState>(context)
-                                  .themeData
-                                  .primaryColor,
-                              onChanged: (value) {
-                                if (value.ceil() != _tcpServerPort) {
-                                  setState(() {
-                                    _tcpServerPort = value.ceil();
-                                    _effect();
-                                  });
-                                }
-                              },
-                              onChangeStart: null,
-                              onChangeEnd: (data) {
-                                config.tcpServerPort = _tcpServerPort;
-                              },
-                              min: 8866.0,
-                              max: 8888.0,
-                              semanticFormatterCallback: (double newValue) {
-                                return '${newValue.ceil()} dollars}';
-                              },
-                            ),
-                          ),
+                          )
                         ],
                       ),
                     ),
