@@ -1,4 +1,5 @@
-#include "ESP01S.h"
+#include "esp01s.h"
+#include "ring.h"
 #include "stdio.h"  // sprintf
 #include "string.h" //  memset
 #include "usart.h"
@@ -62,17 +63,13 @@ void USART1_IRQHandler(void) {
       __HAL_UART_CLEAR_IDLEFLAG(&huart1); // 清除IDLE中断标记
       HAL_UART_AbortReceive(&huart1);     // 停止DMA接收
 
-      ESP01S_Recv_Size                  = ESP01S_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
-      ESP01S_Recv_Buf[ESP01S_Recv_Size] = '\0';                                                      // 添加结束符
+      ESP01S_Recv_Size = ESP01S_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
       if (ESP01S_Recv_Size) {
-         // printf("USART3 - Recv from ESP01S, len=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
-
-         // uint32_t len = 0;
-         // uint8_t  echo[ESP01S_Buf_Max_Len + 32];
-         // len = sprintf((char*)echo, "Recv from ESP01S, len=[%ld], data=[%s]\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
-         // HAL_UART_Transmit_DMA(&huart1, echo, len);
-         // ESP01S_Recv_Size = 0;
-         // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+         if (0 != addDataToRingQueue(ESP01S_Recv_Buf, ESP01S_Recv_Size)) {
+            printf("USART3 - Recv from ESP01S, len=[%ld], data=[%s] add to ring queue fail\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
+            // 直接丢弃
+            ESP01S_Recv_Size = 0;
+         }
       }
 
       HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Buf_Max_Len); // DMA_NORMAL需要重新启动DMA接收, 如果是DMA_CIRCULAR模式, 则不需要再次启动

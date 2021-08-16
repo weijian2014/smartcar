@@ -4,6 +4,7 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "motor.h"
+#include "ring.h"
 #include "servo.h"
 #include "stdio.h" // printf
 #include "tim.h"
@@ -46,21 +47,46 @@ int main(void) {
    MX_USART3_UART_Init(); // printf
    MX_TIM3_Init();        // 舵机的PWM
 
+   Ring_Queue_Init();
    ESP01S_Init();
    Motor_Init();
    Servo_Init();
 
-   uint16_t rpm = 0;
-   uint16_t ms  = 500;
+   uint16_t ms = 500;
 
-#if 0
-   Motor_RunN(1, rpm);
-   Motor_RunS(2, rpm);
-#endif
+   uint8_t hexBuf[64];
+   hexBuf[63] = '\0';
 
-   uint8_t hexBuf[13];
-   hexBuf[12] = '\0';
+   uint8_t  msgLen  = 0;
+   uint8_t* msgData = NULL;
+   uint8_t  optType = opt_max;
+   uint16_t rpm     = 0;
+
    while (1) {
+      msgData = getDataFromRingQueue(&msgLen);
+      if (msgData != NULL && msgLen != 0) {
+         optType = msgData[1];
+         switch (optType) {
+         case opt_control: {
+            ToHex((char*)msgData, msgLen, (char*)hexBuf);
+            printf("msgData=[%s], msgLen=%d, ringQueueLen=%d\n", hexBuf, msgLen, ringQueueLength());
+
+            ControlMessage* msg = (ControlMessage*)msgData;
+            Servo_Turn_Abs_Angle(msg->angel);
+            rpm = Speed_Rpm[msg->level];
+            if (msg->direction == dir_forward) {
+               Motor_RunN(1, rpm);
+               Motor_RunS(2, rpm);
+            }
+            else {
+               Motor_RunN(2, rpm);
+               Motor_RunS(1, rpm);
+            }
+         } break;
+         default:
+            break;
+         }
+      }
 
 #if 0
       if (ESP01S_Recv_Size >= 5) {
@@ -92,6 +118,8 @@ int main(void) {
       }
 
 #endif
+
+      // Servo_Turn_Abs_Angle(45);
 
       // HAL_Delay(500);
       // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);

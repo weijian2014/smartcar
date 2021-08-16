@@ -48,6 +48,7 @@ add_executable(smartcar
    User/esp01s.c
    User/motor.c
    User/servo.c
+   User/ring.c
    Src/tim.c
    Src/gpio.c
    Src/i2c.c

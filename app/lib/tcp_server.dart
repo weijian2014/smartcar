@@ -39,6 +39,7 @@ class _TcpServer {
 
       // 监听TCP服务器socket，等待accept
       await _server.listen((Socket client) async {
+        client.setOption(SocketOption.tcpNoDelay, true);
         _clients[client] ??= List.generate(0, (index) => 0);
         bus.fire(new TcpServerEvent(
             "Client[${client.remoteAddress.host}:${client.remotePort}] connect to server[${_server.address.host}:${_server.port}]"));
@@ -125,7 +126,7 @@ class _TcpServer {
               switch (msg.optType) {
                 case OperationType.opt_echo:
                   {
-                    send(client, msg);
+                    _send(client, msg);
                   }
                   break;
                 case OperationType.opt_ack:
@@ -146,13 +147,17 @@ class _TcpServer {
                 "Client[${client.remoteAddress.host}:${client.remotePort}] message handle done, _recvData.len=${recvData.length}, recvData=$recvData");
             await client.flush();
             messages.clear();
-          }, onError: (error) {
+          }, onError: (error) async {
             // 监听客户端socket错误
             print(
-                "Client[${client.remoteAddress.host}:${client.remotePort}] receive data error error, $error");
-            _clients.remove(client);
+                "Client[${client.remoteAddress.host}:${client.remotePort}] onError, $error");
+            await client.close();
             client.close();
-          }, onDone: null, cancelOnError: false);
+            _clients.remove(client);
+          }, onDone: () {
+            print(
+                "Client[${client.remoteAddress.host}:${client.remotePort}] onDone");
+          }, cancelOnError: false);
         } catch (e) {
           print(
               "Client[${client.remoteAddress.host}:${client.remotePort}] receive data error，$e");
@@ -181,7 +186,7 @@ class _TcpServer {
     }
   }
 
-  void send(Socket client, Message msg) async {
+  void _send(Socket client, Message msg) async {
     if (!isStarted) {
       return;
     }
@@ -205,6 +210,7 @@ class _TcpServer {
       for (var client in _clients.entries) {
         var c = client.key;
         c.add(msg.encode());
+        await c.flush();
         print(
             "Server[${_server.address.host}:${_server.port}] send to client[${c.remoteAddress.host}:${c.remotePort}], $msg");
       }
