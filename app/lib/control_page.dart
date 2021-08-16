@@ -20,6 +20,8 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
   final double doublePrecision = 0.01;
   final double doubleZero = 0.00000000;
 
+  bool isStarted = false;
+
   DateTime lastTime = DateTime.now();
 
   List<double> _accelerometerValues = <double>[0.0, 0.0, 0.0];
@@ -544,6 +546,16 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
     }
   }
 
+  String _getButtonTextString() {
+    String ret;
+    if (isStarted) {
+      ret = '停止';
+    } else {
+      ret = '开始';
+    }
+    return ret;
+  }
+
   @override
   Widget build(BuildContext context) {
     // final accelerometer =
@@ -597,7 +609,7 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
     info += '舵机角度: $servoAngle, 速度等级: $level';
 
     DateTime now = DateTime.now();
-    if (now.difference(lastTime).inMilliseconds >= 20) {
+    if (isStarted && now.difference(lastTime).inMilliseconds >= 20) {
       lastTime = now;
       ControlMessage msg = new ControlMessage(
           direction, servoAngle, MotorRotatingLevel.values[level]);
@@ -606,10 +618,22 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
 
     return Theme(
         data: Provider.of<ThemeState>(context).themeData,
-        child: new Scaffold(
-            appBar: new AppBar(
-              title: new Text("遥控"),
+        child: Scaffold(
+            appBar: AppBar(
+              title: Text("遥控"),
             ),
+            floatingActionButton: FloatingActionButton(
+              child: Text(_getButtonTextString()),
+              elevation: 3.0,
+              highlightElevation: 2.0,
+              onPressed: () {
+                setState(() {
+                  isStarted = !isStarted;
+                });
+              },
+            ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerDocked,
             body: Container(
               constraints: BoxConstraints.expand(),
               alignment: Alignment.center,
