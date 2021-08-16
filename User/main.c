@@ -62,10 +62,24 @@ int main(void) {
    uint8_t  optType = opt_max;
    uint16_t rpm     = 0;
 
+   uint32_t lastTick = HAL_GetTick();
+   uint32_t currTick = HAL_GetTick();
+
    while (1) {
+      currTick = HAL_GetTick();
+      if (currTick - lastTick >= 5000) {
+         // 5秒钟没有msg就停止马达
+         lastTick = currTick;
+         Motor_RunN(1, 0);
+         Motor_RunS(2, 0);
+         Motor_RunN(2, 0);
+         Motor_RunS(1, 0);
+      }
+
       msgData = getDataFromRingQueue(&msgLen);
       if (msgData != NULL && msgLen != 0) {
-         optType = msgData[1];
+         lastTick = currTick;
+         optType  = msgData[1];
          switch (optType) {
          case opt_control: {
             ToHex((char*)msgData, msgLen, (char*)hexBuf);
@@ -88,41 +102,6 @@ int main(void) {
          }
       }
 
-#if 0
-      if (ESP01S_Recv_Size >= 5) {
-         ToHex((char*)ESP01S_Recv_Buf, ESP01S_Recv_Size, (char*)hexBuf);
-
-         ControlMessage* msg = (ControlMessage*)ESP01S_Recv_Buf;
-         printf("ESP01S_Recv_Buf=%s, totalLength=%d, optType=%d, direction=%d, angel=%d, level=%d\n", hexBuf, msg->totalLength, msg->optType, msg->direction, msg->angel, msg->level);
-
-         switch (msg->optType) {
-         case opt_control: {
-            Servo_Turn_Abs_Angle(msg->angel);
-            rpm = Speed_Rpm[msg->level];
-            if (msg->direction == dir_forward) {
-               Motor_RunN(1, rpm);
-               Motor_RunS(2, rpm);
-            }
-            else {
-               Motor_RunN(2, rpm);
-               Motor_RunS(1, rpm);
-            }
-         }
-
-         break;
-         default:
-            break;
-         }
-
-         ESP01S_Recv_Size = 0;
-      }
-
-#endif
-
-      // Servo_Turn_Abs_Angle(45);
-
-      // HAL_Delay(500);
-      // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 #if 0
       Motor_RunN(1, rpm); //电机1反转
       Motor_RunS(2, rpm); //电机2正转

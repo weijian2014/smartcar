@@ -609,7 +609,8 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
     info += '舵机角度: $servoAngle, 速度等级: $level';
 
     DateTime now = DateTime.now();
-    if (isStarted && now.difference(lastTime).inMilliseconds >= 0) {
+    if (isStarted && now.difference(lastTime).inMilliseconds >= 20) {
+      // 20毫秒发一次
       lastTime = now;
       ControlMessage msg = new ControlMessage(
           direction, servoAngle, MotorRotatingLevel.values[level]);
