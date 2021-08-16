@@ -182,7 +182,10 @@ class _TcpServer {
   }
 
   void send(Socket client, Message msg) async {
-    assert(isStarted);
+    if (!isStarted) {
+      return;
+    }
+
     try {
       client.add(msg.encode());
       print(
@@ -194,7 +197,10 @@ class _TcpServer {
   }
 
   void sendToAll(Message msg) async {
-    assert(isStarted);
+    if (!isStarted) {
+      return;
+    }
+
     try {
       for (var client in _clients.entries) {
         var c = client.key;

@@ -674,7 +674,7 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
                   //   ),
                   // ),
                   Padding(
-                    padding: const EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.fromLTRB(10, 30, 10, 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
