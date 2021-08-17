@@ -19,11 +19,31 @@ void To_Hex(char* src, int len, char* dest) {
    }
 }
 
-void ESP01S_RST() {
-   HAL_UART_Transmit_DMA(&huart1, (uint8_t*)"AT+RST", 6);
+void ESP01S_Rst() {
+   HAL_UART_Transmit_DMA(&huart1, (uint8_t*)"+++\r\n", 5);
+   HAL_UART_Transmit_DMA(&huart1, (uint8_t*)"AT+RST\r\n", 8);
+   HAL_UART_Transmit_DMA(&huart1, (uint8_t*)"AT+CIPMODE=1\r\n", 14);
 }
 
 void ESP01S_Init() {
+   // ESP01S更新固件需要按说明文档中的接线方法, 把所有引脚都接上. 可以使用USB转TTL的5V, 把所有的引脚都与USB转TTL的引脚接在一起, 3.3V和GND可以扩展再接
+   //   ESP01S     USB转TTL
+   //   3.3V         5V
+   //   RST          5V
+   //   EN           5V
+   //   IO2          5V
+   //   GND          GND
+   //   IO0          GND
+   //   TX           RX
+   //   RX           TX
+
+   // ESP01S连接USB转TTL进行调试的接线如下, 可以使用USB转TTL的5V
+   //   ESP01S     USB转TTL
+   //   3.3V         5V
+   //   GND          GND
+   //   TX           RX
+   //   RX           TX
+
    // ESP01S接在STM32C8T6的USART1(PA9, PA10)上
    //   ESP01S      STM32C8T6
    //   3.3v          3.3v
@@ -55,7 +75,7 @@ void ESP01S_Init() {
    __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
 
    // 上电后重置一下
-   ESP01S_RST();
+   ESP01S_Rst();
 
    printf("ESP01S init ok\n");
 }
@@ -68,15 +88,21 @@ void USART1_IRQHandler(void) {
    // 判断是否为USART1的IDLE中断
    // if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE) != RESET) {
    if (__HAL_UART_GET_IT_SOURCE(&huart1, UART_IT_IDLE) != RESET) {
-      __HAL_UART_CLEAR_IDLEFLAG(&huart1); // 清除IDLE中断标记
-      HAL_UART_AbortReceive(&huart1);     // 停止DMA接收
-
+      __HAL_UART_CLEAR_IDLEFLAG(&huart1);                                           // 清除IDLE中断标记
+      HAL_UART_AbortReceive(&huart1);                                               // 停止DMA接收
       ESP01S_Recv_Size = ESP01S_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
+
       if (ESP01S_Recv_Size) {
-         if (0 != addDataToRingQueue(ESP01S_Recv_Buf, ESP01S_Recv_Size)) {
-            printf("USART3 - Recv from ESP01S, len=[%ld], data=[%s] add to ring queue fail\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
-            // 直接丢弃
-            ESP01S_Recv_Size = 0;
+         // ESP01S_Recv_Buf[ESP01S_Recv_Size] = '\0';
+         // printf("ESP01S_Recv_Buf=[%s], ESP01S_Recv_Size=[%ld]\n", ESP01S_Recv_Buf, ESP01S_Recv_Size);
+
+         uint8_t oneMsgLength = ESP01S_Recv_Buf[0];
+         if (oneMsgLength == ESP01S_Recv_Size) {
+            if (0 != addDataToRingQueue(ESP01S_Recv_Buf, ESP01S_Recv_Size)) {
+               printf("USART3 - Recv from ESP01S, len=[%ld], data=[%s] add to ring queue fail\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
+               // 直接丢弃
+               ESP01S_Recv_Size = 0;
+            }
          }
       }
 

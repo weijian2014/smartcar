@@ -4,8 +4,6 @@
 #include "stdint.h"
 
 #define ESP01S_Buf_Max_Len 64
-extern uint8_t  ESP01S_Recv_Buf[ESP01S_Buf_Max_Len];
-extern uint32_t ESP01S_Recv_Size;
 
 extern void To_Hex(char* src, int len, char* dest);
 
@@ -30,6 +28,8 @@ typedef struct {
    uint8_t angel;
    uint8_t level;
 } ControlMessage;
+
+void ESP01S_Rst();
 
 void ESP01S_Init();
 

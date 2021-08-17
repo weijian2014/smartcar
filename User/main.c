@@ -65,8 +65,9 @@ int main(void) {
    while (1) {
       currTick = HAL_GetTick();
       if (currTick - lastTick >= 2000) {
-         // 5秒钟没有msg就停止马达
+         // 2秒钟没有msg就停止马达
          printf("Stop the motor\n");
+         ESP01S_Rst();
          lastTick = currTick;
          Motor_RunN(1, 0);
          Motor_RunS(2, 0);
