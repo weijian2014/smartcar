@@ -606,9 +606,11 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
 
     info += '舵机角度: $servoAngle, 速度等级: $level';
 
-    ControlMessage msg = new ControlMessage(
-        direction, servoAngle, MotorRotatingLevel.values[level]);
-    server.sendToAll(msg);
+    if (isStarted) {
+      ControlMessage msg = new ControlMessage(
+          direction, servoAngle, MotorRotatingLevel.values[level]);
+      server.sendToAll(msg);
+    }
 
     return Theme(
         data: Provider.of<ThemeState>(context).themeData,

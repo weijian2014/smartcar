@@ -83,7 +83,7 @@ int main(void) {
             ControlMessage* msg = (ControlMessage*)msgData;
             To_Hex((char*)msgData, msgLen, (char*)hexBuf);
             printf("msgDataHex=[%s], msgLen=%d, type=%d, dir=%d, angel=%d, level=%d, ringQueueLen=%d, \n", hexBuf, msgLen, msg->optType, msg->direction, msg->angel, msg->level, ringQueueLength());
-            Servo_Turn_Abs_Angle(msg->angel);
+            // Servo_Turn_Abs_Angle(msg->angel);
             rpm = Speed_Rpm[msg->level];
             if (msg->direction == dir_forward) {
                Motor_RunN(1, rpm);
