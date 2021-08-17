@@ -64,10 +64,9 @@ int main(void) {
 
    while (1) {
       currTick = HAL_GetTick();
-      if (currTick - lastTick >= 2000) {
+      if (currTick - lastTick >= 5000) {
          // 2秒钟没有msg就停止马达
-         printf("Stop the motor\n");
-         ESP01S_Rst();
+         printf("Not messages to process, stop the motor\n");
          lastTick = currTick;
          Motor_RunN(1, 0);
          Motor_RunS(2, 0);
@@ -83,8 +82,11 @@ int main(void) {
          case opt_control: {
             ControlMessage* msg = (ControlMessage*)msgData;
             To_Hex((char*)msgData, msgLen, (char*)hexBuf);
-            printf("msgDataHex=[%s], msgLen=%d, type=%d, dir=%d, angel=%d, level=%d, ringQueueLen=%d, \n", hexBuf, msgLen, msg->optType, msg->direction, msg->angel, msg->level, ringQueueLength());
-            // Servo_Turn_Abs_Angle(msg->angel);
+            printf("msgDataHex=[%s], msgLen=%d, type=%d, dir=%d, angel=%d, level=%d, ringQueueLen=%d\n", hexBuf, msgLen, msg->optType, msg->direction, msg->angel, msg->level, ringQueueLength());
+            if (msg->level != 0) {
+               Servo_Turn_Abs_Angle(msg->angel);
+            }
+
             rpm = Speed_Rpm[msg->level];
             if (msg->direction == dir_forward) {
                Motor_RunN(1, rpm);

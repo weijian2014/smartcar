@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'app_provider.dart';
 // import 'my_event_bus.dart';
+import 'my_event_bus.dart';
 import 'tcp_server.dart';
 import 'config.dart';
 import 'msg.dart';
@@ -21,6 +22,8 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
   final double doubleZero = 0.00000000;
 
   bool isStarted = false;
+
+  bool isMotorStoped = false;
 
   List<double> _accelerometerValues = <double>[0.0, 0.0, 0.0];
   // List<double> _userAccelerometerValues = <double>[0.0, 0.0, 0.0];
@@ -61,11 +64,11 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
     //   ),
     // );
 
-    // _streamSubscriptions.add(bus.listen<TcpServerEvent>((TcpServerEvent event) {
-    //   setState(() {
-    //     _tcpServerEvent = event.msg;
-    //   });
-    // }));
+    _streamSubscriptions.add(bus.listen<TcpServerEvent>((TcpServerEvent event) {
+      setState(() {
+        // _tcpServerEvent = event.msg;
+      });
+    }));
   }
 
   @override
@@ -610,6 +613,11 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
       ControlMessage msg = new ControlMessage(
           direction, servoAngle, MotorRotatingLevel.values[level]);
       server.sendToAll(msg);
+    } else if (!isMotorStoped) {
+      ControlMessage msg =
+          new ControlMessage(1, 90, MotorRotatingLevel.rpm_stop);
+      server.sendToAll(msg);
+      isMotorStoped = true;
     }
 
     return Theme(
@@ -625,6 +633,9 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
               onPressed: () {
                 setState(() {
                   isStarted = !isStarted;
+                  if (isStarted) {
+                    isMotorStoped = false;
+                  }
                 });
               },
             ),
@@ -692,7 +703,10 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Text('客户端: ${server.getClientInfo()}'),
+                        Text(
+                          '客户端: ${server.getClientInfo()}',
+                          maxLines: 5,
+                        ),
                       ],
                     ),
                   ),

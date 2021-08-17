@@ -249,7 +249,7 @@ class _TcpServer {
     if (!isStarted) {
       return "The server has not started";
     } else {
-      return "The [${_server.address.host}:${_server.port}] has been started";
+      return "The server listen on ${_server.port}";
     }
   }
 
@@ -258,8 +258,16 @@ class _TcpServer {
       return "No client yet";
     } else {
       String info = "";
+      int i = 0;
       for (var client in _clients.entries) {
-        info += "[${client.key.remoteAddress.host}:${client.key.remotePort}],";
+        if (i == 0) {
+          info += "${client.key.remoteAddress.host}:${client.key.remotePort}";
+        } else {
+          info += "\n";
+          info +=
+              "　　　  ${client.key.remoteAddress.host}:${client.key.remotePort}";
+        }
+        ++i;
       }
       return info;
     }
