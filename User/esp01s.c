@@ -22,7 +22,6 @@ void To_Hex(char* src, int len, char* dest) {
 void ESP01S_Rst() {
    HAL_UART_Transmit_DMA(&huart1, (uint8_t*)"+++\r\n", 5);
    HAL_UART_Transmit_DMA(&huart1, (uint8_t*)"AT+RST\r\n", 8);
-   HAL_UART_Transmit_DMA(&huart1, (uint8_t*)"AT+CIPMODE=1\r\n", 14);
 }
 
 void ESP01S_Init() {

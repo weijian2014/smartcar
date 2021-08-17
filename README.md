@@ -11,6 +11,7 @@ smartcar
 
 *EPS01S AT指令
 
+> - AT+RESTORE # 恢复出厂设置
 > - AT+RST # Reset, 即重启, 不清除配置
 > - AT+CWMODE=1 # 1:station模式 2:ap模式 3:sta+ap模式
 > - AT+CWJAP="SSID","PWD" # SSID为要连接的WIFI的名称, PWD为要连接的WIFI的密码

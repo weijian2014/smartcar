@@ -53,18 +53,17 @@ class _TcpServer {
       bus.fire(new TcpServerEvent(
           "Client[${client.remoteAddress.host}:${client.remotePort}] connect to server[${_server.address.host}:${_server.port}]"));
 
-      try {
-        _clientListen(client);
-      } catch (e) {
-        print(
-            "Client[${client.remoteAddress.host}:${client.remotePort}] listen error，$e");
-        _closeClient(client);
-      }
+      _clientListen(client);
     }, onError: (e) {
       // TCP服务器socket监听错误
-      print("Server[${_server.address.host}:${_server.port}] listen error, $e");
+      print(
+          "Server[${_server.address.host}:${_server.port}] onError, $e, restarting...");
       _restart(host, port);
-    }, onDone: null, cancelOnError: false);
+    }, onDone: () {
+      print(
+          "Server[${_server.address.host}:${_server.port}] onDone, restarting...");
+      _restart(host, port);
+    }, cancelOnError: false);
   }
 
   void _restart(String host, int port) async {
@@ -78,116 +77,124 @@ class _TcpServer {
   }
 
   void _clientListen(Socket client) async {
-    // 监听客户端socket
-    await client.listen((Uint8List data) async {
-      // 接收到客户端发来的数据data
-      var recvData = _clients[client];
-      int orgRecvDataBytes = recvData!.length;
-      recvData.addAll(data);
+    try {
+      // 监听客户端socket
+      await client.listen((Uint8List data) async {
+        // 接收到客户端发来的数据data
+        var recvData = _clients[client];
+        int orgRecvDataBytes = recvData!.length;
+        recvData.addAll(data);
 
-      while (true) {
-        int recvDataBytes = recvData.length;
-        if (recvDataBytes <= 2) {
-          break;
+        while (true) {
+          int recvDataBytes = recvData.length;
+          if (recvDataBytes <= 2) {
+            break;
+          }
+
+          ByteData bd =
+              Uint8List.fromList(recvData).buffer.asByteData(0, recvDataBytes);
+
+          // 一个包的长度, 1Byte
+          int packetBytes = bd.getUint8(0);
+          if (packetBytes > recvDataBytes) {
+            recvData.removeRange(orgRecvDataBytes, data.lengthInBytes);
+            print(
+                "Client[${client.remoteAddress.host}:${client.remotePort}] receive data error, ignore received data");
+            break;
+          }
+
+          int opt = bd.getUint8(1);
+          if (opt >= OperationType.opt_max.index ||
+              opt < OperationType.opt_echo.index) {
+            recvData.removeRange(orgRecvDataBytes, data.lengthInBytes);
+            print(
+                "Client[${client.remoteAddress.host}:${client.remotePort}] receive data error, operationType=$opt, ignore received data");
+            break;
+          }
+
+          // 包的操作类型, 1Byte
+          OperationType optType = OperationType.values[opt];
+
+          switch (optType) {
+            case OperationType.opt_echo:
+              {
+                String echo = String.fromCharCodes(
+                    Uint8List.sublistView(data, 2, packetBytes));
+                Message msg = new EchoMessage(echo);
+                _messages.add(msg);
+                recvData.removeRange(0, packetBytes);
+                // print(msg.toString());
+              }
+              break;
+            case OperationType.opt_ack:
+              {
+                int ack = bd.getUint8(2);
+                Message msg = new AckMessage(ack);
+                _messages.add(msg);
+                recvData.removeRange(0, packetBytes);
+                print(msg.toString());
+              }
+              break;
+            case OperationType.opt_car_status:
+              {
+                int angel = bd.getUint16(2);
+                MotorRotatingLevel level = bd.getUint8(4) as MotorRotatingLevel;
+                Message msg = new CarStatusMessage(angel, level);
+                _messages.add(msg);
+                recvData.removeRange(0, packetBytes);
+                print(msg.toString());
+              }
+              break;
+            default:
+              {
+                print(
+                    "Client[${client.remoteAddress.host}:${client.remotePort}] parse data error");
+              }
+          }
         }
 
-        ByteData bd =
-            Uint8List.fromList(recvData).buffer.asByteData(0, recvDataBytes);
-
-        // 一个包的长度, 1Byte
-        int packetBytes = bd.getUint8(0);
-        if (packetBytes > recvDataBytes) {
-          recvData.removeRange(orgRecvDataBytes, data.lengthInBytes);
-          print(
-              "Client[${client.remoteAddress.host}:${client.remotePort}] receive data error, ignore received data");
-          break;
+        for (var msg in _messages) {
+          switch (msg.optType) {
+            case OperationType.opt_echo:
+              {
+                _send(client, msg);
+              }
+              break;
+            case OperationType.opt_ack:
+              {}
+              break;
+            case OperationType.opt_car_status:
+              {}
+              break;
+            default:
+              {
+                print(
+                    "Client[${client.remoteAddress.host}:${client.remotePort}] handle message error");
+              }
+          }
         }
 
-        int opt = bd.getUint8(1);
-        if (opt >= OperationType.opt_max.index ||
-            opt < OperationType.opt_echo.index) {
-          recvData.removeRange(orgRecvDataBytes, data.lengthInBytes);
-          print(
-              "Client[${client.remoteAddress.host}:${client.remotePort}] receive data error, operationType=$opt, ignore received data");
-          break;
-        }
-
-        // 包的操作类型, 1Byte
-        OperationType optType = OperationType.values[opt];
-
-        switch (optType) {
-          case OperationType.opt_echo:
-            {
-              String echo = String.fromCharCodes(
-                  Uint8List.sublistView(data, 2, packetBytes));
-              Message msg = new EchoMessage(echo);
-              _messages.add(msg);
-              recvData.removeRange(0, packetBytes);
-              // print(msg.toString());
-            }
-            break;
-          case OperationType.opt_ack:
-            {
-              int ack = bd.getUint8(2);
-              Message msg = new AckMessage(ack);
-              _messages.add(msg);
-              recvData.removeRange(0, packetBytes);
-              print(msg.toString());
-            }
-            break;
-          case OperationType.opt_car_status:
-            {
-              int angel = bd.getUint16(2);
-              MotorRotatingLevel level = bd.getUint8(4) as MotorRotatingLevel;
-              Message msg = new CarStatusMessage(angel, level);
-              _messages.add(msg);
-              recvData.removeRange(0, packetBytes);
-              print(msg.toString());
-            }
-            break;
-          default:
-            {
-              print(
-                  "Client[${client.remoteAddress.host}:${client.remotePort}] parse data error");
-            }
-        }
-      }
-
-      for (var msg in _messages) {
-        switch (msg.optType) {
-          case OperationType.opt_echo:
-            {
-              _send(client, msg);
-            }
-            break;
-          case OperationType.opt_ack:
-            {}
-            break;
-          case OperationType.opt_car_status:
-            {}
-            break;
-          default:
-            {
-              print(
-                  "Client[${client.remoteAddress.host}:${client.remotePort}] handle message error");
-            }
-        }
-      }
-
+        print(
+            "Client[${client.remoteAddress.host}:${client.remotePort}] message handle done, _recvData.len=${recvData.length}, recvData=$recvData");
+        await client.flush();
+        _messages.clear();
+      }, onError: (error) async {
+        // 监听客户端socket错误
+        print(
+            "Client[${client.remoteAddress.host}:${client.remotePort}] onError, $error");
+        await client.close();
+        _closeClient(client);
+        return;
+      }, onDone: () {
+        print(
+            "Client[${client.remoteAddress.host}:${client.remotePort}] onDone, closing...");
+        _closeClient(client);
+      }, cancelOnError: false);
+    } catch (e) {
       print(
-          "Client[${client.remoteAddress.host}:${client.remotePort}] message handle done, _recvData.len=${recvData.length}, recvData=$recvData");
-      await client.flush();
-      _messages.clear();
-    }, onError: (error) async {
-      // 监听客户端socket错误
-      print(
-          "Client[${client.remoteAddress.host}:${client.remotePort}] onError, $error");
-      await client.close();
+          "Client[${client.remoteAddress.host}:${client.remotePort}] listen error, $e, closing...");
       _closeClient(client);
-      return;
-    }, onDone: () {
-      print("Client[${client.remoteAddress.host}:${client.remotePort}] onDone");
-    }, cancelOnError: false);
+    }
   }
 
   void _closeClient(Socket client) async {
@@ -200,12 +207,6 @@ class _TcpServer {
       return;
     }
 
-    // client.drain().then((value) async {
-    //   print('client[${client.remoteAddress.host}:${client.remotePort}] closed');
-    //   _closeClient(client);
-    //   return;
-    // });
-
     try {
       client.add(msg.encode());
       print(
@@ -213,6 +214,7 @@ class _TcpServer {
     } catch (e) {
       print(
           "Server[${_server.address.host}:${_server.port}] send to client[${client.remoteAddress.host}:${client.remotePort}], $msg");
+      _closeClient(client);
     }
   }
 
@@ -221,23 +223,19 @@ class _TcpServer {
       return;
     }
 
+    var client;
     try {
-      for (var client in _clients.entries) {
-        var c = client.key;
-        // c.drain().then((value) async {
-        //   print('client[${c.remoteAddress.host}:${c.remotePort}] closed');
-        //   _closeClient(c);
-        //   return;
-        // });
-
-        c.add(msg.encode());
-        await c.flush();
+      for (var entry in _clients.entries) {
+        client = entry.key;
+        client.add(msg.encode());
+        await client.flush();
         print(
-            "Server[${_server.address.host}:${_server.port}] send to client[${c.remoteAddress.host}:${c.remotePort}], $msg");
+            "send to client[${client.remoteAddress.host}:${client.remotePort}], $msg");
       }
     } catch (e) {
       print(
           "Server[${_server.address.host}:${_server.port}] send to all fail, $e");
+      _closeClient(client);
     }
   }
 
