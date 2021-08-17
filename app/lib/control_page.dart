@@ -22,8 +22,6 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
 
   bool isStarted = false;
 
-  DateTime lastTime = DateTime.now();
-
   List<double> _accelerometerValues = <double>[0.0, 0.0, 0.0];
   // List<double> _userAccelerometerValues = <double>[0.0, 0.0, 0.0];
   // List<double> _gyroscopeValues = <double>[0.0, 0.0, 0.0];
@@ -608,14 +606,9 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
 
     info += '舵机角度: $servoAngle, 速度等级: $level';
 
-    DateTime now = DateTime.now();
-    if (isStarted && now.difference(lastTime).inMilliseconds >= 20) {
-      // 20毫秒发一次
-      lastTime = now;
-      ControlMessage msg = new ControlMessage(
-          direction, servoAngle, MotorRotatingLevel.values[level]);
-      server.sendToAll(msg);
-    }
+    ControlMessage msg = new ControlMessage(
+        direction, servoAngle, MotorRotatingLevel.values[level]);
+    server.sendToAll(msg);
 
     return Theme(
         data: Provider.of<ThemeState>(context).themeData,

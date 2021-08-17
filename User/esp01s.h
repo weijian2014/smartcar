@@ -7,7 +7,7 @@
 extern uint8_t  ESP01S_Recv_Buf[ESP01S_Buf_Max_Len];
 extern uint32_t ESP01S_Recv_Size;
 
-extern void ToHex(char* src, int len, char* dest);
+extern void To_Hex(char* src, int len, char* dest);
 
 // 短整型大小端互换
 #define BigLittleSwap16(A) ((((uint16)(A)&0xff00) >> 8) | (((uint16)(A)&0x00ff) << 8))

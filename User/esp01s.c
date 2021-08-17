@@ -11,11 +11,16 @@ uint8_t ESP01S_Send_Buf[ESP01S_Buf_Max_Len]; // 发送给串口的数据
 
 const char Hex_Table[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-void ToHex(char* src, int len, char* dest) {
+void To_Hex(char* src, int len, char* dest) {
+   dest[2 * len] = '\0';
    while (len--) {
       *(dest + 2 * len + 1) = Hex_Table[(*(src + len)) & 0x0f];
       *(dest + 2 * len)     = Hex_Table[(*(src + len)) >> 4];
    }
+}
+
+void ESP01S_RST() {
+   HAL_UART_Transmit_DMA(&huart1, (uint8_t*)"AT+RST", 6);
 }
 
 void ESP01S_Init() {
@@ -48,6 +53,9 @@ void ESP01S_Init() {
    // USART_ISR 状态寄存器, Bit4是IDLE寄存器, Bit5是RXNE寄存器. 当串口接收到数据时，bit5就会自动变成1，当接收完一帧数据后，bit4就会变成1
    // 需要注意的是，在中断函数里面，需要把对应的位清0，否则会影响下一次数据的接收
    __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+
+   // 上电后重置一下
+   ESP01S_RST();
 
    printf("ESP01S init ok\n");
 }

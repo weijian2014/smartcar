@@ -52,10 +52,7 @@ int main(void) {
    Motor_Init();
    Servo_Init();
 
-   uint16_t ms = 500;
-
    uint8_t hexBuf[64];
-   hexBuf[63] = '\0';
 
    uint8_t  msgLen  = 0;
    uint8_t* msgData = NULL;
@@ -67,8 +64,9 @@ int main(void) {
 
    while (1) {
       currTick = HAL_GetTick();
-      if (currTick - lastTick >= 5000) {
+      if (currTick - lastTick >= 2000) {
          // 5秒钟没有msg就停止马达
+         printf("Stop the motor\n");
          lastTick = currTick;
          Motor_RunN(1, 0);
          Motor_RunS(2, 0);
@@ -82,10 +80,9 @@ int main(void) {
          optType  = msgData[1];
          switch (optType) {
          case opt_control: {
-            ToHex((char*)msgData, msgLen, (char*)hexBuf);
-            printf("msgData=[%s], msgLen=%d, ringQueueLen=%d\n", hexBuf, msgLen, ringQueueLength());
-
             ControlMessage* msg = (ControlMessage*)msgData;
+            To_Hex((char*)msgData, msgLen, (char*)hexBuf);
+            printf("msgDataHex=[%s], msgLen=%d, type=%d, dir=%d, angel=%d, level=%d, ringQueueLen=%d, \n", hexBuf, msgLen, msg->optType, msg->direction, msg->angel, msg->level, ringQueueLength());
             Servo_Turn_Abs_Angle(msg->angel);
             rpm = Speed_Rpm[msg->level];
             if (msg->direction == dir_forward) {

@@ -200,11 +200,11 @@ class _TcpServer {
       return;
     }
 
-    client.drain().then((value) async {
-      print('client[${client.remoteAddress.host}:${client.remotePort}] closed');
-      _closeClient(client);
-      return;
-    });
+    // client.drain().then((value) async {
+    //   print('client[${client.remoteAddress.host}:${client.remotePort}] closed');
+    //   _closeClient(client);
+    //   return;
+    // });
 
     try {
       client.add(msg.encode());
@@ -224,11 +224,11 @@ class _TcpServer {
     try {
       for (var client in _clients.entries) {
         var c = client.key;
-        c.drain().then((value) async {
-          print('client[${c.remoteAddress.host}:${c.remotePort}] closed');
-          _closeClient(c);
-          return;
-        });
+        // c.drain().then((value) async {
+        //   print('client[${c.remoteAddress.host}:${c.remotePort}] closed');
+        //   _closeClient(c);
+        //   return;
+        // });
 
         c.add(msg.encode());
         await c.flush();
