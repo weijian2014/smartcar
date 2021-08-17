@@ -78,6 +78,8 @@ class _TcpServer {
     }
 
     _clients.clear();
+    bus.fire(new TcpServerEvent(
+        "Servert[${_server.address.host}:${_server.port}] restarting"));
     await _server.close();
     isStarted = false;
   }
@@ -204,6 +206,8 @@ class _TcpServer {
   }
 
   void _closeClient(Socket client) async {
+    bus.fire(new TcpServerEvent(
+        "Client[${client.remoteAddress.host}:${client.remotePort}] closing"));
     _clients.remove(client);
     await client.close();
   }
