@@ -36,34 +36,40 @@ class _TcpServer {
         bus.fire(new TcpServerEvent(
             "Server[${_server.address.host}:${_server.port}] startup"));
       }).catchError((e) {
-        print("the tcp server catch error: $e");
+        print("the tcp server catch error: $e, restarting...");
         _restart(host, port);
         return;
       });
     } catch (e) {
-      print("the tcp server bind error: $e");
+      print("the tcp server bind error: $e, restarting...");
       _restart(host, port);
       return;
     }
 
-    // 监听TCP服务器socket，等待accept
-    await _server.listen((Socket client) async {
-      client.setOption(SocketOption.tcpNoDelay, true);
-      _clients[client] ??= List.generate(0, (index) => 0);
-      bus.fire(new TcpServerEvent(
-          "Client[${client.remoteAddress.host}:${client.remotePort}] connect to server[${_server.address.host}:${_server.port}]"));
+    try {
+      // 监听TCP服务器socket，等待accept
+      await _server.listen((Socket client) async {
+        client.setOption(SocketOption.tcpNoDelay, true);
+        _clients[client] ??= List.generate(0, (index) => 0);
+        bus.fire(new TcpServerEvent(
+            "Client[${client.remoteAddress.host}:${client.remotePort}] connect to server[${_server.address.host}:${_server.port}]"));
 
-      _clientListen(client);
-    }, onError: (e) {
-      // TCP服务器socket监听错误
-      print(
-          "Server[${_server.address.host}:${_server.port}] onError, $e, restarting...");
+        _clientListen(client);
+      }, onError: (e) {
+        // TCP服务器socket监听错误
+        print(
+            "Server[${_server.address.host}:${_server.port}] onError, $e, restarting...");
+        _restart(host, port);
+      }, onDone: () {
+        print(
+            "Server[${_server.address.host}:${_server.port}] onDone, restarting...");
+        _restart(host, port);
+      }, cancelOnError: false);
+    } catch (e) {
+      print("the tcp server listen error: $e, restarting...");
       _restart(host, port);
-    }, onDone: () {
-      print(
-          "Server[${_server.address.host}:${_server.port}] onDone, restarting...");
-      _restart(host, port);
-    }, cancelOnError: false);
+      return;
+    }
   }
 
   void _restart(String host, int port) async {
@@ -178,10 +184,10 @@ class _TcpServer {
             "Client[${client.remoteAddress.host}:${client.remotePort}] message handle done, _recvData.len=${recvData.length}, recvData=$recvData");
         await client.flush();
         _messages.clear();
-      }, onError: (error) async {
+      }, onError: (e) async {
         // 监听客户端socket错误
         print(
-            "Client[${client.remoteAddress.host}:${client.remotePort}] onError, $error");
+            "Client[${client.remoteAddress.host}:${client.remotePort}] onError, $e");
         await client.close();
         _closeClient(client);
         return;
