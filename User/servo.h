@@ -3,7 +3,7 @@
 
 #include "stdint.h"
 
-extern int8_t Servo_Current_Angle;
+extern uint8_t Servo_Current_Angle;
 
 void Servo_Turn_Abs_Angle(uint8_t angle);
 

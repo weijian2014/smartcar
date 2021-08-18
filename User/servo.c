@@ -2,7 +2,7 @@
 #include "stdio.h" // sprintf
 #include "tim.h"
 
-int8_t Servo_Current_Angle;
+uint8_t Servo_Current_Angle;
 
 #define Angle_Index_Offset (45) // 角度下标的偏移
 #define Min_Angle (45)
