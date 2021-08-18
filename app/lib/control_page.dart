@@ -23,7 +23,7 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
 
   bool isStarted = false;
 
-  bool isMotorStoped = false;
+  bool isMotorStoped = true;
 
   List<double> _accelerometerValues = <double>[0.0, 0.0, 0.0];
   // List<double> _userAccelerometerValues = <double>[0.0, 0.0, 0.0];
@@ -542,7 +542,7 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
       int x = accelerometerValues![0].ceil().abs();
       int y = accelerometerValues[1].ceil().abs();
       int level = x + y;
-      level = min(level, 10);
+      level = min(level, MotorRotatingLevel.rpm_max.index - 1);
       return level;
     }
   }

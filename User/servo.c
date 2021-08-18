@@ -2,7 +2,7 @@
 #include "stdio.h" // sprintf
 #include "tim.h"
 
-int8_t Current_Angle;
+int8_t Servo_Current_Angle;
 
 #define Angle_Index_Offset (45) // 角度下标的偏移
 #define Min_Angle (45)
@@ -17,18 +17,18 @@ uint16_t Angle_Compare_value[91] = { 2080, 2068, 2057, 2046, 2035, 2024, 2013, 2
                                      1421, 1414, 1407, 1401, 1394, 1387, 1381, 1374, 1367, 1360, 1354, 1347, 1340, 1334, 1327, 1320, 1314, 1307, 1300, 1293, 1287, 1280 };
 
 void Servo_Turn_Abs_Angle(uint8_t angle) {
-   if (angle == 0 || angle < 45 || angle > 135) {
+   if (angle < Min_Angle || angle > Max_Angle) {
       return;
    }
 
-   Current_Angle      = angle;
-   uint8_t angleIndex = angle - Angle_Index_Offset;
+   Servo_Current_Angle = angle;
+   uint8_t angleIndex  = angle - Angle_Index_Offset;
    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, Angle_Compare_value[angleIndex]);
 }
 
 // void Servo_Turn_Right(uint8_t angle) {
-//    if ((Current_Angle + angle) > Max_Angle) {
-//       angle = Max_Angle - Current_Angle;
+//    if ((Servo_Current_Angle + angle) > Max_Angle) {
+//       angle = Max_Angle - Servo_Current_Angle;
 //    }
 
 //    if (angle == 0) {
@@ -36,14 +36,14 @@ void Servo_Turn_Abs_Angle(uint8_t angle) {
 //    }
 
 //    // 1280 --> 2080
-//    uint8_t angleIndex = Current_Angle + angle - Angle_Index_Offset;
+//    uint8_t angleIndex = Servo_Current_Angle + angle - Angle_Index_Offset;
 //    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, Angle_Compare_value[angleIndex]);
-//    Current_Angle += angle;
+//    Servo_Current_Angle += angle;
 // }
 
 // void Servo_Turn_Left(uint8_t angle) {
-//    if ((Current_Angle - angle) < Min_Angle) {
-//       angle = Current_Angle - Min_Angle;
+//    if ((Servo_Current_Angle - angle) < Min_Angle) {
+//       angle = Servo_Current_Angle - Min_Angle;
 //    }
 
 //    if (angle == 0) {
@@ -51,9 +51,9 @@ void Servo_Turn_Abs_Angle(uint8_t angle) {
 //    }
 
 //    // 2080 --> 1280
-//    uint8_t angleIndex = Current_Angle - angle - Angle_Index_Offset;
+//    uint8_t angleIndex = Servo_Current_Angle - angle - Angle_Index_Offset;
 //    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, Angle_Compare_value[angleIndex]);
-//    Current_Angle -= angle;
+//    Servo_Current_Angle -= angle;
 // }
 
 void Servo_Init() {
@@ -64,9 +64,7 @@ void Servo_Init() {
 
    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
-   Current_Angle      = 90;
-   uint8_t angleIndex = 90 - Angle_Index_Offset;
-   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, Angle_Compare_value[angleIndex]);
+   Servo_Turn_Abs_Angle(90);
 
    printf("Servo init ok\n");
 }

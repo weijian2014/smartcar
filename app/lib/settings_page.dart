@@ -61,7 +61,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
     if (value == 0) {
       return "0(自动计算)";
     } else {
-      return "$value(${value * 200}转每分钟)";
+      return "$value(${(value + 1) * 100 + 70}转每分钟)";
     }
   }
 

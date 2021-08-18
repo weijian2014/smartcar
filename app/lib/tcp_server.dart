@@ -228,7 +228,7 @@ class _TcpServer {
     }
   }
 
-  void sendToAll(Message msg) async {
+  void sendToAll(Message msg) {
     if (!isStarted) {
       return;
     }
@@ -238,7 +238,7 @@ class _TcpServer {
       for (var entry in _clients.entries) {
         client = entry.key;
         client.add(msg.encode());
-        await client.flush();
+        client.flush();
         print(
             "send to client[${client.remoteAddress.host}:${client.remotePort}], $msg");
       }

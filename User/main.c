@@ -82,7 +82,8 @@ int main(void) {
          case opt_control: {
             ControlMessage* msg = (ControlMessage*)msgData;
             To_Hex((char*)msgData, msgLen, (char*)hexBuf);
-            printf("msgDataHex=[%s], msgLen=%d, type=%d, dir=%d, angel=%d, level=%d, ringQueueLen=%d\n", hexBuf, msgLen, msg->optType, msg->direction, msg->angel, msg->level, ringQueueLength());
+            printf("msgDataHex=[%s], msgLen=%d, type=%d, dir=%d, angel=%d, lastAngel=%d, level=%d, ringQueueLen=%d\n", hexBuf, msgLen, msg->optType, msg->direction, msg->angel, Servo_Current_Angle,
+                   msg->level, ringQueueLength());
             if (msg->level != 0) {
                Servo_Turn_Abs_Angle(msg->angel);
             }
