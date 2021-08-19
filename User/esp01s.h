@@ -1,6 +1,7 @@
 #ifndef _SMARTCAR_ESP01S_H_
 #define _SMARTCAR_ESP01S_H_
 
+#include "ring.h"
 #include "stdint.h"
 
 #define ESP01S_Buf_Max_Len 64
@@ -31,6 +32,6 @@ typedef struct {
 
 void ESP01S_Rst();
 
-void ESP01S_Init();
+void ESP01S_Init(ring_buffer* ring_buffer_handle);
 
 #endif // _SMARTCAR_ESP01S_H_

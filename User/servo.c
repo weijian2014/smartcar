@@ -17,7 +17,7 @@ uint16_t Angle_Compare_value[91] = { 2080, 2068, 2057, 2046, 2035, 2024, 2013, 2
                                      1421, 1414, 1407, 1401, 1394, 1387, 1381, 1374, 1367, 1360, 1354, 1347, 1340, 1334, 1327, 1320, 1314, 1307, 1300, 1293, 1287, 1280 };
 
 void Servo_Turn_Abs_Angle(uint8_t angle) {
-   if (angle < Min_Angle || angle > Max_Angle) {
+   if (angle == Servo_Current_Angle || angle < Min_Angle || angle > Max_Angle) {
       return;
    }
 

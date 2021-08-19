@@ -1,5 +1,4 @@
 #include "esp01s.h"
-#include "ring.h"
 #include "stdio.h"  // sprintf
 #include "string.h" //  memset
 #include "usart.h"
@@ -8,6 +7,8 @@ uint8_t  ESP01S_Recv_Buf[ESP01S_Buf_Max_Len]; // 串口接收到的数据
 uint32_t ESP01S_Recv_Size = 0;
 
 uint8_t ESP01S_Send_Buf[ESP01S_Buf_Max_Len]; // 发送给串口的数据
+
+ring_buffer* RB = NULL;
 
 const char Hex_Table[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
@@ -25,7 +26,9 @@ void ESP01S_Rst() {
    HAL_UART_Transmit_DMA(&huart1, (uint8_t*)"AT+RST\r\n", 8);
 }
 
-void ESP01S_Init() {
+void ESP01S_Init(ring_buffer* ring_buffer_handle) {
+   RB = ring_buffer_handle;
+
    // ESP01S更新固件需要按说明文档中的接线方法, 把所有引脚都接上. 可以使用USB转TTL的5V, 把所有的引脚都与USB转TTL的引脚接在一起, 3.3V和GND可以扩展再接
    //   ESP01S     USB转TTL
    //   3.3V         5V
@@ -98,10 +101,13 @@ void USART1_IRQHandler(void) {
 
          uint8_t oneMsgLength = ESP01S_Recv_Buf[0];
          if (oneMsgLength == ESP01S_Recv_Size) {
-            if (0 != addDataToRingQueue(ESP01S_Recv_Buf, ESP01S_Recv_Size)) {
+            if (RING_BUFFER_SUCCESS != Ring_Buffer_Write_String(RB, ESP01S_Recv_Buf, ESP01S_Recv_Size)) {
                printf("USART3 - Recv from ESP01S, len=[%ld], data=[%s] add to ring queue fail\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
                // 直接丢弃
                ESP01S_Recv_Size = 0;
+            }
+            else {
+               Ring_Buffer_Insert_Keyword(RB, SEPARATE_SIGN, SEPARATE_SIGN_SIZE);
             }
          }
       }

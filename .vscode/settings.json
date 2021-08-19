@@ -101,6 +101,7 @@
       "stdio.h": "c",
       "dma.h": "c",
       "motor.h": "c",
-      "limits": "c"
+      "limits": "c",
+      "ring.h": "c"
    }
 }

@@ -36,6 +36,8 @@ int _write(int file, char* ptr, int len) {
 
 void SystemClock_Config(void);
 
+#define Read_BUFFER_SIZE 1024
+
 int main(void) {
    HAL_Init();
    SystemClock_Config();
@@ -47,43 +49,53 @@ int main(void) {
    MX_USART3_UART_Init(); // printf
    MX_TIM3_Init();        // 舵机的PWM
 
-   Ring_Queue_Init();
-   ESP01S_Init();
+   //新建缓冲区数组与RingBuffer操作句柄
+   uint8_t     buffer[Read_BUFFER_SIZE];
+   ring_buffer RB;
+   //初始化RingBuffer操作句柄，绑定缓冲区数组；
+   Ring_Buffer_Init(&RB, buffer, Read_BUFFER_SIZE);
+
+   ESP01S_Init(&RB);
    Motor_Init();
    Servo_Init();
 
+   // for debug
    uint8_t hexBuf[64];
 
-   uint8_t  msgLen  = 0;
-   uint8_t* msgData = NULL;
-   uint8_t  optType = opt_max;
-   uint16_t rpm     = 0;
-
-   uint32_t lastTick = HAL_GetTick();
-   uint32_t currTick = HAL_GetTick();
+   uint8_t  oneMsg[64];
+   uint8_t  oneMsgLen = 0;
+   uint8_t  optType   = opt_max;
+   uint16_t rpm       = 0;
+   uint32_t lastTick  = HAL_GetTick();
+   uint32_t currTick  = HAL_GetTick();
 
    while (1) {
+
+#if 1
       currTick = HAL_GetTick();
-      if (currTick - lastTick >= 5000) {
+      if (currTick - lastTick >= 1000) {
          // 2秒钟没有msg就停止马达
          printf("Not messages to process, stop the motor\n");
+         HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
          lastTick = currTick;
+         Servo_Turn_Abs_Angle(90);
          Motor_RunN(1, 0);
          Motor_RunS(2, 0);
          Motor_RunN(2, 0);
          Motor_RunS(1, 0);
       }
 
-      msgData = getDataFromRingQueue(&msgLen);
-      if (msgData != NULL && msgLen != 0) {
+      oneMsgLen = Ring_Buffer_Find_Keyword(&RB, SEPARATE_SIGN, SEPARATE_SIGN_SIZE) - 1;
+      if (Ring_Buffer_Read_String(&RB, oneMsg, oneMsgLen) == RING_BUFFER_SUCCESS) {
+         Ring_Buffer_Delete(&RB, SEPARATE_SIGN_SIZE);
          lastTick = currTick;
-         optType  = msgData[1];
+         optType  = oneMsg[1];
          switch (optType) {
          case opt_control: {
-            ControlMessage* msg = (ControlMessage*)msgData;
-            To_Hex((char*)msgData, msgLen, (char*)hexBuf);
-            printf("msgDataHex=[%s], msgLen=%d, type=%d, dir=%d, angel=%d, lastAngel=%d, level=%d, ringQueueLen=%d\n", hexBuf, msgLen, msg->optType, msg->direction, msg->angel, Servo_Current_Angle,
-                   msg->level, ringQueueLength());
+            ControlMessage* msg = (ControlMessage*)oneMsg;
+            To_Hex((char*)oneMsg, oneMsgLen, (char*)hexBuf);
+            printf("msgDataHex=[%s], oneMsgLen=%d, type=%d, dir=%d, angel=%d, lastAngel=%d, level=%d, ringQueueLen=%ld\n", hexBuf, oneMsgLen, msg->optType, msg->direction, msg->angel,
+                   Servo_Current_Angle, msg->level, Ring_Buffer_Get_Lenght(&RB));
             if (msg->level != 0) {
                Servo_Turn_Abs_Angle(msg->angel);
             }
@@ -102,6 +114,8 @@ int main(void) {
             break;
          }
       }
+
+#endif
 
 #if 0
       Motor_RunN(1, rpm); //电机1反转

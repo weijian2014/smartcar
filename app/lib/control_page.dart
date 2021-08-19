@@ -73,6 +73,10 @@ class ControlPageWidgetState extends State<ControlPageWidget> {
 
   @override
   void dispose() {
+    // 停止小车马达
+    ControlMessage msg = new ControlMessage(1, 90, MotorRotatingLevel.rpm_stop);
+    server.sendToAll(msg);
+
     super.dispose();
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
