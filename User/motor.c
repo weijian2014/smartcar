@@ -128,7 +128,7 @@ void Motor_Init() {
    // 本工程将控制板接在STM32C8T6的USART2(PA2, PA3)上, 全双工模式
    //   控制板       STM32C8T6
    //   5v            3.3v             可以不接VCC
-   //   GND           GND              GND必须接!!!
+   //   GND           GND              GND必须接!!!(双直流电源GND要共地)
    //   TX            PA2(USART2_TX)   控制板的TX和RX反了!!!必须这样接!!!
    //   RX            PA3(USART2_RX)
 
