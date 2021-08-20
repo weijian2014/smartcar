@@ -4,9 +4,9 @@
 
 uint8_t Servo_Current_Angle;
 
-#define Angle_Index_Offset (45) // 角度下标的偏移
-#define Min_Angle (45)
-#define Max_Angle (135)
+#define ANGLE_INDEX_OFFSET 45 // 角度下标的偏移
+#define MIN_ANGLE 45
+#define MAN_ANGLE 135
 
 // 舵机以坐标系-X轴为0度顺时针增加旋转角度
 // 为了方便以正切角度（以坐标系+X轴为0度逆时针增加旋转角度）的方式控制舵机, 需要将比较值逆序(正切45度需要舵机135度的比较值)
@@ -17,44 +17,14 @@ uint16_t Angle_Compare_value[91] = { 2080, 2068, 2057, 2046, 2035, 2024, 2013, 2
                                      1421, 1414, 1407, 1401, 1394, 1387, 1381, 1374, 1367, 1360, 1354, 1347, 1340, 1334, 1327, 1320, 1314, 1307, 1300, 1293, 1287, 1280 };
 
 void Servo_Turn_Abs_Angle(uint8_t angle) {
-   if (angle == Servo_Current_Angle || angle < Min_Angle || angle > Max_Angle) {
+   if (angle == Servo_Current_Angle || angle < MIN_ANGLE || angle > MAN_ANGLE) {
       return;
    }
 
    Servo_Current_Angle = angle;
-   uint8_t angleIndex  = angle - Angle_Index_Offset;
+   uint8_t angleIndex  = angle - ANGLE_INDEX_OFFSET;
    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, Angle_Compare_value[angleIndex]);
 }
-
-// void Servo_Turn_Right(uint8_t angle) {
-//    if ((Servo_Current_Angle + angle) > Max_Angle) {
-//       angle = Max_Angle - Servo_Current_Angle;
-//    }
-
-//    if (angle == 0) {
-//       return;
-//    }
-
-//    // 1280 --> 2080
-//    uint8_t angleIndex = Servo_Current_Angle + angle - Angle_Index_Offset;
-//    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, Angle_Compare_value[angleIndex]);
-//    Servo_Current_Angle += angle;
-// }
-
-// void Servo_Turn_Left(uint8_t angle) {
-//    if ((Servo_Current_Angle - angle) < Min_Angle) {
-//       angle = Servo_Current_Angle - Min_Angle;
-//    }
-
-//    if (angle == 0) {
-//       return;
-//    }
-
-//    // 2080 --> 1280
-//    uint8_t angleIndex = Servo_Current_Angle - angle - Angle_Index_Offset;
-//    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, Angle_Compare_value[angleIndex]);
-//    Servo_Current_Angle -= angle;
-// }
 
 void Servo_Init() {
    // 如果舵机和STM32开发板不是同一个电源共电, 需要将STM32的GND与舵机供电的GND连接(双直流电源GND要共地)

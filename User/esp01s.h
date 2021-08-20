@@ -4,7 +4,7 @@
 #include "ring.h"
 #include "stdint.h"
 
-#define ESP01S_Buf_Max_Len 64
+#define ESP01S_RECV_BUF_MAX_LEN 64
 
 extern void To_Hex(char* src, int len, char* dest);
 
@@ -32,6 +32,6 @@ typedef struct {
 
 void ESP01S_Rst();
 
-void ESP01S_Init(ring_buffer* ring_buffer_handle);
+void ESP01S_Init(RingQueue* ringQueue);
 
 #endif // _SMARTCAR_ESP01S_H_

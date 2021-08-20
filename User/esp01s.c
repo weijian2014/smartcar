@@ -3,12 +3,12 @@
 #include "string.h" //  memset
 #include "usart.h"
 
-uint8_t  ESP01S_Recv_Buf[ESP01S_Buf_Max_Len]; // 串口接收到的数据
+uint8_t  ESP01S_Recv_Buf[ESP01S_RECV_BUF_MAX_LEN]; // 串口接收到的数据
 uint32_t ESP01S_Recv_Size = 0;
 
-uint8_t ESP01S_Send_Buf[ESP01S_Buf_Max_Len]; // 发送给串口的数据
+uint8_t ESP01S_Send_Buf[ESP01S_RECV_BUF_MAX_LEN]; // 发送给串口的数据
 
-ring_buffer* RB = NULL;
+RingQueue* ESP01S_Recv_Ring_Queue = NULL;
 
 const char Hex_Table[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
@@ -26,8 +26,8 @@ void ESP01S_Rst() {
    HAL_UART_Transmit_DMA(&huart1, (uint8_t*)"AT+RST\r\n", 8);
 }
 
-void ESP01S_Init(ring_buffer* ring_buffer_handle) {
-   RB = ring_buffer_handle;
+void ESP01S_Init(RingQueue* ringQueue) {
+   ESP01S_Recv_Ring_Queue = ringQueue;
 
    // ESP01S更新固件需要按说明文档中的接线方法, 把所有引脚都接上. 可以使用USB转TTL的5V, 把所有的引脚都与USB转TTL的引脚接在一起, 3.3V和GND可以扩展再接
    //   ESP01S     USB转TTL
@@ -64,7 +64,7 @@ void ESP01S_Init(ring_buffer* ring_buffer_handle) {
 
    // 打开USART1的DMA接收
    // usart.c中的HAL_UART_MspInit()已经对USART1的接收(P-->M)DMA做了初始化, 使用DMA1的第5通道(表59)
-   HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Buf_Max_Len);
+   HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_RECV_BUF_MAX_LEN);
 
    // 打开USART1的DMA发送
    // usart.c中的HAL_UART_MspInit()已经对USART1的发送(M-->P)DMA做了初始化, 使用DMA1的第4通道(表59)
@@ -91,9 +91,9 @@ void USART1_IRQHandler(void) {
    // 判断是否为USART1的IDLE中断
    // if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE) != RESET) {
    if (__HAL_UART_GET_IT_SOURCE(&huart1, UART_IT_IDLE) != RESET) {
-      __HAL_UART_CLEAR_IDLEFLAG(&huart1);                                           // 清除IDLE中断标记
-      HAL_UART_AbortReceive(&huart1);                                               // 停止DMA接收
-      ESP01S_Recv_Size = ESP01S_Buf_Max_Len - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
+      __HAL_UART_CLEAR_IDLEFLAG(&huart1);                                                // 清除IDLE中断标记
+      HAL_UART_AbortReceive(&huart1);                                                    // 停止DMA接收
+      ESP01S_Recv_Size = ESP01S_RECV_BUF_MAX_LEN - __HAL_DMA_GET_COUNTER(huart1.hdmarx); // 总数据量减去未接收到的数据量为已经接收到的数据量
 
       if (ESP01S_Recv_Size) {
          // ESP01S_Recv_Buf[ESP01S_Recv_Size] = '\0';
@@ -101,17 +101,13 @@ void USART1_IRQHandler(void) {
 
          uint8_t oneMsgLength = ESP01S_Recv_Buf[0];
          if (oneMsgLength == ESP01S_Recv_Size) {
-            if (RING_BUFFER_SUCCESS != Ring_Buffer_Write_String(RB, ESP01S_Recv_Buf, ESP01S_Recv_Size)) {
-               printf("USART3 - Recv from ESP01S, len=[%ld], data=[%s] add to ring queue fail\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
+            if (RING_QUEUE_OK != Ring_Queue_Write_Data(ESP01S_Recv_Ring_Queue, ESP01S_Recv_Buf, ESP01S_Recv_Size)) {
                // 直接丢弃
-               ESP01S_Recv_Size = 0;
-            }
-            else {
-               Ring_Buffer_Insert_Keyword(RB, SEPARATE_SIGN, SEPARATE_SIGN_SIZE);
+               printf("USART3 - Recv from ESP01S, len=[%ld], data=[%s] add to ring queue fail\n", ESP01S_Recv_Size, ESP01S_Recv_Buf);
             }
          }
       }
 
-      HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_Buf_Max_Len); // DMA_NORMAL需要重新启动DMA接收, 如果是DMA_CIRCULAR模式, 则不需要再次启动
+      HAL_UART_Receive_DMA(&huart1, ESP01S_Recv_Buf, ESP01S_RECV_BUF_MAX_LEN); // DMA_NORMAL需要重新启动DMA接收, 如果是DMA_CIRCULAR模式, 则不需要再次启动
    }
 }
