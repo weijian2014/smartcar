@@ -19,6 +19,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
   bool _isVibration = false;
   bool _isSoundEffect = false;
   int _rotatingLevel = 0;
+  double _servoSensitivity = 0.7;
 
   BoxDecoration _setBoxDecoration() {
     if (Provider.of<ThemeState>(context).themeIndex == 0) {
@@ -83,6 +84,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
     _isVibration = config.isVibrate;
     _isSoundEffect = config.isSoundEffect;
     _rotatingLevel = config.motroRotatingLevel;
+    _servoSensitivity = config.servoSensitivity;
   }
 
   @override
@@ -288,6 +290,50 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                               semanticFormatterCallback: (double newValue) {
                                 return '${newValue.ceil()} dollars}';
                               },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 6,
+                                child: Text('舵机灵敏度'),
+                              ),
+                              Expanded(
+                                flex: 0,
+                                child: Text('${_servoSensitivity}   '),
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                            child: Slider(
+                              value: _servoSensitivity,
+                              activeColor: Provider.of<ThemeState>(context)
+                                  .themeData
+                                  .primaryColor,
+                              onChanged: (value) {
+                                if (value != _servoSensitivity) {
+                                  setState(() {
+                                    _servoSensitivity = value;
+                                    _effect();
+                                  });
+                                }
+                              },
+                              onChangeStart: null,
+                              onChangeEnd: (data) {
+                                config.servoSensitivity = _servoSensitivity;
+                              },
+                              min: 0.6,
+                              max: 1.0,
+                              divisions: 4,
+                              semanticFormatterCallback: null,
                             ),
                           ),
                         ],

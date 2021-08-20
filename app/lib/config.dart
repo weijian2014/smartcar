@@ -70,6 +70,16 @@ class _AppConfig {
     assert(inInit);
     _prefs.setInt('motroRotatingLevel', level);
   }
+
+  double get servoSensitivity {
+    assert(inInit);
+    return _prefs.getDouble('servoSensitivity') ?? 0.6;
+  }
+
+  void set servoSensitivity(double sensitivity) {
+    assert(inInit);
+    _prefs.setDouble('servoSensitivity', sensitivity);
+  }
 }
 
 _AppConfig config = new _AppConfig();
