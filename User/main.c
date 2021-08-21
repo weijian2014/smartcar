@@ -52,7 +52,7 @@ int main(void) {
    MX_TIM3_Init();        // 舵机的PWM
 
    //初始化RingBuffer操作句柄，绑定缓冲区数组；
-   Ring_Buffer_Init(&esp01sRingQueue, esp01sBuffer, ESP01S_BUFFER_MAX_LEN);
+   Ring_Queue_Init(&esp01sRingQueue, esp01sBuffer, ESP01S_BUFFER_MAX_LEN);
 
    ESP01S_Init(&esp01sRingQueue);
    Motor_Init();
@@ -94,7 +94,7 @@ int main(void) {
                ControlMessage* msg = (ControlMessage*)oneMsg;
                To_Hex((char*)oneMsg, oneMsgLen, (char*)hexBuf);
                printf("msgDataHex=[%s], oneMsgLen=%d, type=%d, dir=%d, angel=%d, lastAngel=%d, level=%d, ringQueueLen=%ld\n", hexBuf, oneMsgLen, msg->optType, msg->direction, msg->angel,
-                      Servo_Current_Angle, msg->level, esp01sRingQueue->lenght);
+                      Servo_Current_Angle, msg->level, esp01sRingQueue.lenght);
                if (msg->level != 0) {
                   Servo_Turn_Abs_Angle(msg->angel);
                }

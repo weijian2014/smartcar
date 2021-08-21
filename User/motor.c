@@ -20,7 +20,7 @@ struct MotorConfigulation MotorConfig;
 #define Motor_RUNN 0XFE          // 逆时针转
 
 // 速度级别, 11档(0 - 0rpm, 1 - 270rpm, 2 - 370rpm, 3 - 470rpm, 4 - 570rpm, 5 - 670rpm, 6 - 770rpm, 7 - 870rpm, 8 - 970rpm, 9 - 1070rpm, 10 - 1170rpm)
-uint16_t Speed_Rpm[Max_Speed_Level] = { 0, 270, 370, 470, 570, 670, 770, 870, 970, 1070, 1170 };
+uint16_t Speed_Rpm[MAX_SPEED_LEVEL] = { 0, 270, 370, 470, 570, 670, 770, 870, 970, 1070, 1170 };
 
 #define Motor_Buf_Max_Len 10
 uint8_t Motor_Recv_Buf[Motor_Buf_Max_Len];
