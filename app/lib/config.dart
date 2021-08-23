@@ -71,14 +71,14 @@ class _AppConfig {
     _prefs.setInt('motroRotatingLevel', level);
   }
 
-  double get servoSensitivity {
+  bool get isReduceServoSensitivity {
     assert(inInit);
-    return _prefs.getDouble('servoSensitivity') ?? 0.6;
+    return _prefs.getBool('isReduceServoSensitivity') ?? false;
   }
 
-  void set servoSensitivity(double sensitivity) {
+  void set isReduceServoSensitivity(bool isReduceServoSensitivity) {
     assert(inInit);
-    _prefs.setDouble('servoSensitivity', sensitivity);
+    _prefs.setBool('isReduceServoSensitivity', isReduceServoSensitivity);
   }
 }
 

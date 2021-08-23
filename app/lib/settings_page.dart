@@ -19,7 +19,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
   bool _isVibration = false;
   bool _isSoundEffect = false;
   int _rotatingLevel = 0;
-  double _servoSensitivity = 0.7;
+  bool _isReduceServoSensitivity = false;
 
   BoxDecoration _setBoxDecoration() {
     if (Provider.of<ThemeState>(context).themeIndex == 0) {
@@ -84,7 +84,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
     _isVibration = config.isVibrate;
     _isSoundEffect = config.isSoundEffect;
     _rotatingLevel = config.motroRotatingLevel;
-    _servoSensitivity = config.servoSensitivity;
+    _isReduceServoSensitivity = config.isReduceServoSensitivity;
   }
 
   @override
@@ -156,6 +156,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                               },
                               min: 0.0,
                               max: ThemeColors.themeCount() - 1,
+                              divisions: ThemeColors.themeCount() - 1,
                               semanticFormatterCallback: (double newValue) {
                                 return '${newValue.ceil()} dollars}';
                               },
@@ -287,6 +288,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                               },
                               min: 0.0,
                               max: 10.0,
+                              divisions: 11,
                               semanticFormatterCallback: (double newValue) {
                                 return '${newValue.ceil()} dollars}';
                               },
@@ -296,49 +298,29 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 6,
-                                child: Text('舵机灵敏度'),
-                              ),
-                              Expanded(
-                                flex: 0,
-                                child: Text('${_servoSensitivity}   '),
-                              ),
-                            ],
-                          ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-                            child: Slider(
-                              value: _servoSensitivity,
-                              activeColor: Provider.of<ThemeState>(context)
-                                  .themeData
-                                  .primaryColor,
-                              onChanged: (value) {
-                                if (value != _servoSensitivity) {
+                        padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 6,
+                              child: Text('降低舵机灵敏度'),
+                            ),
+                            Expanded(
+                              flex: 0,
+                              child: Switch(
+                                value: _isReduceServoSensitivity,
+                                onChanged: (value) {
                                   setState(() {
-                                    _servoSensitivity = value;
+                                    _isReduceServoSensitivity = value;
+                                    config.isVibrate =
+                                        _isReduceServoSensitivity;
                                     _effect();
                                   });
-                                }
-                              },
-                              onChangeStart: null,
-                              onChangeEnd: (data) {
-                                config.servoSensitivity = _servoSensitivity;
-                              },
-                              min: 0.6,
-                              max: 1.0,
-                              divisions: 4,
-                              semanticFormatterCallback: null,
+                                },
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
+                          ],
+                        )),
                   ],
                 ),
               ),
