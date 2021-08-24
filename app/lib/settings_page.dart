@@ -288,7 +288,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                               },
                               min: 0.0,
                               max: 10.0,
-                              divisions: 11,
+                              divisions: 10,
                               semanticFormatterCallback: (double newValue) {
                                 return '${newValue.ceil()} dollars}';
                               },
@@ -312,7 +312,7 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                                 onChanged: (value) {
                                   setState(() {
                                     _isReduceServoSensitivity = value;
-                                    config.isVibrate =
+                                    config.isReduceServoSensitivity =
                                         _isReduceServoSensitivity;
                                     _effect();
                                   });
