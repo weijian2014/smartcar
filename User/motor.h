@@ -13,7 +13,7 @@ struct MotorConfigulation {
 
 extern struct MotorConfigulation MotorConfig;
 
-#define MAX_SPEED_LEVEL 11
+#define MAX_SPEED_LEVEL 13
 #define MIN_SPEED_LEVEL 0
 
 extern uint16_t Speed_Rpm[MAX_SPEED_LEVEL];

@@ -12,16 +12,18 @@ enum OperationType {
 // 马达转速级别
 enum MotorRotatingLevel {
   rpm_stop, // value = 0
-  rpm_level_1_270rpm, // 270rpm
-  rpm_level_2_370rpm, // 370rpm
-  rpm_level_3_470rpm, // 470rpm
-  rpm_level_4_570rpm, // 570rpm
-  rpm_level_5_670rpm, // 670rpm
-  rpm_level_6_770rpm, // 770rpm
-  rpm_level_7_870rpm, // 870rpm
-  rpm_level_8_970rpm, // 970rpm
-  rpm_level_9_1070rpm, // 1070rpm
-  rpm_level_10_1170rpm, // 1170rpm
+  rpm_level_1_100rpm,
+  rpm_level_2_170rpm,
+  rpm_level_3_270rpm,
+  rpm_level_4_370rpm,
+  rpm_level_5_470rpm,
+  rpm_level_6_570rpm,
+  rpm_level_7_670rpm,
+  rpm_level_8_770rpm,
+  rpm_level_9_870rpm,
+  rpm_level_10_970rpm,
+  rpm_level_11_1070rpm,
+  rpm_level_12_1170rpm,
   rpm_max // value = 11
 }
 

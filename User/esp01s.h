@@ -4,7 +4,7 @@
 #include "ring.h"
 #include "stdint.h"
 
-#define ESP01S_RECV_BUF_MAX_LEN 64
+#define ESP01S_RECV_BUF_MAX_LEN 32
 
 extern void To_Hex(char* src, int len, char* dest);
 

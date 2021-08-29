@@ -36,7 +36,7 @@ int _write(int file, char* ptr, int len) {
 
 void SystemClock_Config(void);
 
-#define ESP01S_BUFFER_MAX_LEN 1024
+#define ESP01S_BUFFER_MAX_LEN 512
 uint8_t   esp01sBuffer[ESP01S_BUFFER_MAX_LEN];
 RingQueue esp01sRingQueue;
 
@@ -92,9 +92,9 @@ int main(void) {
             switch (optType) {
             case opt_control: {
                ControlMessage* msg = (ControlMessage*)oneMsg;
-               To_Hex((char*)oneMsg, oneMsgLen, (char*)hexBuf);
-               printf("msgDataHex=[%s], oneMsgLen=%d, type=%d, dir=%d, angel=%d, lastAngel=%d, level=%d, ringQueueLen=%ld\n", hexBuf, oneMsgLen, msg->optType, msg->direction, msg->angel,
-                      Servo_Current_Angle, msg->level, esp01sRingQueue.lenght);
+               // To_Hex((char*)oneMsg, oneMsgLen, (char*)hexBuf);
+               // printf("msgDataHex=[%s], oneMsgLen=%d, type=%d, dir=%d, angel=%d, lastAngel=%d, level=%d, ringQueueLen=%ld, ringQueueHead=%ld, ringQueueTail=%ld\n", hexBuf, oneMsgLen, msg->optType,
+               //        msg->direction, msg->angel, Servo_Current_Angle, msg->level, esp01sRingQueue.lenght, esp01sRingQueue.head, esp01sRingQueue.tail);
                if (msg->level != 0) {
                   Servo_Turn_Abs_Angle(msg->angel);
                }

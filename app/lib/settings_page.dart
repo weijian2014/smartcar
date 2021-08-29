@@ -61,8 +61,10 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
   String _showRotatingLevel(int value) {
     if (value == 0) {
       return "0(自动计算)";
+    } else if (value == 1) {
+      return "1(100转每分钟)";
     } else {
-      return "$value(${(value + 1) * 100 + 70}转每分钟)";
+      return "$value(${(value - 1) * 100 + 70}转每分钟)";
     }
   }
 
@@ -287,8 +289,8 @@ class SettingsPageWidgetState extends State<SettingsPageWidget> {
                                 config.motroRotatingLevel = _rotatingLevel;
                               },
                               min: 0.0,
-                              max: 10.0,
-                              divisions: 10,
+                              max: 12.0,
+                              divisions: 12,
                               semanticFormatterCallback: (double newValue) {
                                 return '${newValue.ceil()} dollars}';
                               },
