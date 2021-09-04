@@ -54,7 +54,7 @@ void ESP01S_Init(RingQueue* ringQueue) {
    //   RX            PA9(USART1_TX)
    //   TX            PA10(USART1_RX)
 
-   // ESP01S接在USART1上,上电自动设置为station模式, 自动接入wifi:xiaoj,自动以TCP客户端连接192.168.2.102:8888
+   // ESP01S接在USART1上,上电自动设置为station模式, 自动接入wifi:mi6_hotspot, password:comba192168, 自动以TCP客户端连接192.168.43.1:8888
 
    // 配置USART1的中断优先级并打开USART1的中断开关
    HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
