@@ -23,8 +23,7 @@
    "editor.autoIndent": "full",
    "editor.formatOnPaste": true, // 粘贴时进行格式化
    "editor.formatOnSave": true, // 保存时进行格式化
-   "editor.formatOnType": true, // 输入时进行格式化
-   "editor.renderIndentGuides": true, // 控制编辑器是否显示缩进参考线
+   "editor.formatOnType": true, // 控制编辑器是否显示缩进参考线
    "files.encoding": "utf8",
    "files.eol": "\n",
    "files.insertFinalNewline": true,
